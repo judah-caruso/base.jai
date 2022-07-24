@@ -13,7 +13,7 @@ Provides:
     - Automated Tests (testing.jai)
     - Iterators/Array Utilities (iterators.jai)
     - Static Array with [..]T API (static-array.jai)
-    - General Purpose Lexe (lexer.jai)
+    - General Purpose Lexer (lexer.jai)
     - Various Utilities (utilities.jai)
 
 Internal tests can be ran with 'jai _run_all_tests.jai'
