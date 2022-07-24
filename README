@@ -1,0 +1,18 @@
+Core - My Personal Library for Jai
+
+:: Installation
+
+Core can be installed via:
+    - git clone https://sr.ht/~judah/core
+    - apm get https://sr.ht/~judah/core
+
+:: Information
+
+Provides:
+    - Tagged Unions (union.jai)
+    - Automated Tests (testing.jai)
+    - Iterators/Array Utilities (iterators.jai)
+    - Static Array with [..]T API (static-array.jai)
+    - Various Utilities (utilities.jai)
+
+Internal tests can be ran with 'jai _run_all_tests.jai'
