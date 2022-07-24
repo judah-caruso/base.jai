@@ -3,8 +3,8 @@ Core - My Personal Library for Jai
 :: Installation
 
 Core can be installed via:
-    - git clone https://sr.ht/~judah/core
-    - apm get https://sr.ht/~judah/core
+    - git clone https://git.sr.ht/~judah/core
+    - apm get https://git.sr.ht/~judah/core
 
 :: Information
 
