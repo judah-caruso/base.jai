@@ -1,4 +1,45 @@
-/// Public API
+/// A compile-time testing module.
+/// Below is a standard usage guide:
+/*
+    Testing is comprised of:
+        - Suites: groups of tests under a single name
+        - Test: a name and a test procedure
+
+    Suites are declared like so:
+
+        #run suite("my test suite", #code {
+            // ...
+        });
+
+    Note, this *must* be run at compile-time.
+
+    Tests within a suite are declared like so:
+
+        #run suite("my test suite", #code {
+            test("some test", (t: *Test) {
+                // ...
+            });
+        });
+
+    This module provides (at this time) one procedure
+    to check correctness: 'expect'.
+
+    'expect' is almost a drop-in replacement for 'assert'.
+    The only noticeable differences are that it requires a
+    '*Test' to be passed as its first parameter, and it
+    can only be called within a test procedure.
+
+        #run suite("my test suite", #code {
+            test("some test", (t: *Test) {
+                expect(t, 1 == 1, "1 was not equal to 1?");
+                expect(t, 2 % 2 == 0);
+            });
+        });
+
+    For more examples, take a look at the tests defined
+    in other modules.
+*/
+
 Test :: struct {
     name:  string;
     suite: *Suite;

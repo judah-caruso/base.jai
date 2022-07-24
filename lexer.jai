@@ -1,3 +1,59 @@
+/// Lexer is a general purpose lexing module for turning plaintext
+/// into an array of user-defined tokens. Below is a standard usage guide:
+
+/*
+    A lexer can be instantiated like so:
+        lexer: Lexer;
+
+    By default it uses predefined values for:
+        - classes of tokens (TOKEN_KIND)
+        - how the classes are mapped to Jai values (TOKEN_VALUE)
+        - if unicode is valid in the source text (UNICODE)
+        - if whitespace should be ignored (IGNORE_WHITESPACE)
+
+    Lexer makes no notion of how tokens are captured, and only
+    makes assumptions (which can be overridden) about what
+    whitespace and newlines are.
+
+    The capturing and classification of tokens is done via
+    'Handlers' implemented through:
+        - a predicate: what constitues a valid starting token for the scanner
+        - a scanner: what a valid capture is from the point of the predicate
+
+    Handlers are created with 'register_handler.' An example handler for
+    scanning identifiers could be implemented like so:
+
+        register_handler(*lexer, starts_identifier, (lexer: *$L) {
+            identifier := capture_while(lexer, continues_identifier);
+
+            token := array_add(*lexer.tokens);
+            token.kind    = .Identifier;
+            token._string = identifier;
+        });
+
+        starts_identifier :: (char: u8) -> bool {
+            return is_lettr(char) || char == #char "_";
+        }
+
+        continues_identifier :: (char: u8) -> bool {
+            return starts_identifier(char) || is_number(char);
+        }
+
+    Handlers are checked *in order* of their registration, so precedence
+    is defined through the order in which 'register_handler' is called.
+
+    Once all handlers are registered, the lexing process can be started
+    via 'lex' like so:
+
+        ok := lex(*lexer);
+        if !ok {
+            // errors occured during lexing
+            // and can be formatted/output through lexer.errors
+        }
+
+    For more examples, take a look at the test suite below.
+*/
+
 Lexer :: struct(
     TOKEN_VALUE       := Default_Value,
     TOKEN_KIND        := Default_Kind,
@@ -75,7 +131,7 @@ Default_Value :: union {
     _float:  float64;
 }
 
-register_scanner :: (lexer: *Lexer, predicate: lexer.Predicate, scanner: lexer.Scanner) {
+register_handler :: (lexer: *Lexer, predicate: lexer.Predicate, scanner: lexer.Scanner) {
     handler := array_add(*lexer.handlers);
     handler.predicate = predicate;
     handler.scanner   = scanner;
@@ -202,16 +258,19 @@ peek_char :: (lexer: *Lexer) -> u8, bool {
     return char, true;
 }
 
-is_whitespace :: (chr: u8) -> bool {
-    return chr == #char " " ||
-           chr == #char "\n";
-}
-
+// @TODO: Make this more robust for unicode
 is_whitespace :: (r: rune) -> bool {
     return r == #char " "  ||
-           r == #char "\n" ||
-           r == 32;
-}
+           r == #char "\t" ||
+           r == #char "\n";
+};
+
+// @NOTE: Maybe add vertical tab?
+is_whitespace :: (chr: u8) -> bool {
+    return chr == #char " "  ||
+           chr == #char "\t" ||
+           chr == #char "\n";
+};
 
 
 #scope_file
@@ -231,7 +290,7 @@ is_whitespace :: (r: rune) -> bool {
                 return r >= #char "0" && r <= #char "9";
             }
 
-            register_scanner(*lexer, is_letter, (lexer: *$L) -> bool {
+            register_handler(*lexer, is_letter, (lexer: *$L) -> bool {
                 identifier := capture_while(lexer, (chr) =>
                     is_letter(chr) ||
                     is_number(chr) ||
@@ -248,7 +307,7 @@ is_whitespace :: (r: rune) -> bool {
                 return true;
             });
 
-            register_scanner(*lexer, is_number, (lexer: *$L) -> bool {
+            register_handler(*lexer, is_number, (lexer: *$L) -> bool {
                 number := capture_while(lexer, (chr) =>
                     is_number(chr)   ||
                     chr == #char "." ||
@@ -285,7 +344,7 @@ is_whitespace :: (r: rune) -> bool {
                 return true;
             });
 
-            register_scanner(*lexer, (chr) => !is_whitespace(chr), (lexer: *$L) -> bool {
+            register_handler(*lexer, (chr) => !is_whitespace(chr), (lexer: *$L) -> bool {
                 token := array_add(*lexer.tokens);
                 token.kind  = .Rune;
                 token._rune = next_rune(lexer);
@@ -339,7 +398,7 @@ is_whitespace :: (r: rune) -> bool {
             lexer: Lexer(TOKEN_VALUE = Value, TOKEN_KIND = Kind, UNICODE = false);
             lexer.source = "hello, world 123 3.14";
 
-            register_scanner(*lexer, is_letter, (lexer: *$L) -> bool {
+            register_handler(*lexer, is_letter, (lexer: *$L) -> bool {
                 identifier := capture_while(lexer, (chr) =>
                     is_letter(chr) ||
                     is_number(chr) ||
@@ -356,7 +415,7 @@ is_whitespace :: (r: rune) -> bool {
                 return true;
             });
 
-            register_scanner(*lexer, is_number, (lexer: *$L) -> bool {
+            register_handler(*lexer, is_number, (lexer: *$L) -> bool {
                 number := capture_while(lexer, (chr) =>
                     is_number(chr)   ||
                     chr == #char "." ||
@@ -393,7 +452,7 @@ is_whitespace :: (r: rune) -> bool {
                 return true;
             });
 
-            register_scanner(*lexer, (chr) => !is_whitespace(chr), (lexer: *$L) -> bool {
+            register_handler(*lexer, (chr) => !is_whitespace(chr), (lexer: *$L) -> bool {
                 token := array_add(*lexer.tokens);
                 token.kind  = .Character;
                 token._char = next_char(lexer);
