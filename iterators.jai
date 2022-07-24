@@ -31,9 +31,10 @@ iter_runes :: (to_iterate: *string, body: Code, flags: For_Flags) #expand {
 iter_ascii :: (to_iterate: *string, body: Code, flags: For_Flags) #expand {
     if !<<to_iterate then return;
 
+    i   := 0;
     str := <<to_iterate;
     while i < str.count {
-        `it       := str.data[it];
+        `it       := str.data[i];
         `it_index := it;
 
         #insert body;
@@ -110,6 +111,17 @@ filter_iter :: (input: $I, output: *[..]$O, $iter: Iterator, proc: (O) -> bool) 
 
             runes2 := filter(runes, (r) => r >= #char "A" && r <= #char "Z");
             expect(t, runes2.count == runes.count - 10);
+        });
+
+        test("Static_Array", (t: *Test) {
+            static: Static_Array(10, int);
+            array_add(*static, 1, 2, 3, 4);
+
+            doubled := map(to_array(static), (n) => n * 2);
+            for doubled expect(t, it == static[it_index] * 2, "%th value didn't match: % vs. %", it, static[it_index]);
+
+            even := filter(doubled, (n) => n % 2 == 0);
+            expect(t, static.count == even.count, "array counts don't match % vs. %", static.count, even.count);
         });
     });
 }

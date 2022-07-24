@@ -121,6 +121,12 @@ pop_pointer :: inline (array: *Static_Array) -> *array.T {
     return *array.elements[array.count - 1];
 }
 
+to_array :: (array: Static_Array) -> []array.T {
+    slice := cast([]array.T)array.elements;
+    slice.count = array.count;
+    return slice;
+}
+
 for_expansion :: (array: *Static_Array, body: Code, flags: For_Flags) #expand {
     iter := cast([]array.T)array.elements;
     iter.count = array.count;

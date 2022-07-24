@@ -5,6 +5,7 @@
 /// Custom Types
 rune :: #type u32;
 
+#load "lexer.jai";
 #load "union.jai";
 #load "testing.jai";
 #load "iterators.jai";
