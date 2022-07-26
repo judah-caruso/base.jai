@@ -145,9 +145,16 @@ lex :: (lexer: *Lexer) -> (ok: bool) {
         if !lexer.source.count break;
 
         token := peek(lexer);
+        had_valid_handler := false;
         for handler: lexer.handlers if handler.predicate(token) {
             if !handler.scanner(lexer) return false;
+            had_valid_handler = true;
             break handler;
+        }
+
+        if !had_valid_handler {
+            error(lexer, sprint("Unexpected character '%'", to_string(token)));
+            return false;
         }
     }
 
@@ -277,6 +284,16 @@ is_whitespace :: (chr: u8) -> bool {
 
 #if RUN_INTERNAL_TESTS #run {
     suite("Lexer", #code {
+        test("empty", (t: *Test) {
+            lexer: Lexer;
+            lexer.source = ". int { foo }";
+
+            ok := lex(*lexer);
+            expect(t, !ok, "empty lexer had no handlers and should've failed");
+            expect(t, lexer.errors.count, "empty lexer failed but had no errors");
+            expect(t, !lexer.tokens.count, "empty lexer should not produce tokens");
+        });
+
         test("unicode", (t: *Test) {
             lexer: Lexer;
             lexer.source = "hello, world 123 3.14";
