@@ -1,5 +1,5 @@
 /// Runs 'main' (or another procedure) at compile-time without generating an executable.
-ct_run_in_bytecode :: ($entrypoint := "main") {
+ct_run_in_bytecode :: ($entrypoint := "main") #expand {
    #import "Compiler";
    set_build_options_dc(.{ do_output = false });
    #insert -> string { return sprint("%();", entrypoint); }
@@ -7,6 +7,7 @@ ct_run_in_bytecode :: ($entrypoint := "main") {
 
 /// Runs 'entrypoint' at compile-time without generating an executable.
 ct_run_in_bytecode :: (entrypoint: $PROC)
+#expand
 #modify {
     info := cast(*Type_Info)PROC;
     if info.type != .PROCEDURE return false;
@@ -97,6 +98,18 @@ ct_return_type_of_iterator :: (type: $T, $iterator: Iterator) -> Type {
 
 #if RUN_INTERNAL_TESTS #run {
     suite("Compile-time", #code {
+        test("ct_run_in_bytecode", (t: *Test) {
+            #run ct_run_in_bytecode(() {
+                assert(running_at_compile_time());
+            });
+
+            my_proc :: () {
+                assert(running_at_compile_time());
+            }
+
+            #run ct_run_in_bytecode(my_proc);
+        });
+
         test("ct_zero_value_of", (t: *Test) {
             a: int;
             az :: #insert #run ct_zero_value_of(int);
