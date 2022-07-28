@@ -7,6 +7,7 @@ rune :: #type u32;
 
 #load "lexer.jai";
 #load "union.jai";
+#load "maybe.jai";
 #load "testing.jai";
 #load "iterators.jai";
 #load "utilities.jai";
