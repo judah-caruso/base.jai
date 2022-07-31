@@ -4,6 +4,8 @@
 
 /// Custom Types
 rune :: #type u32;
+f32  :: #type float32;
+f64  :: #type float64;
 
 #load "lexer.jai";
 #load "union.jai";

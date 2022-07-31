@@ -47,12 +47,22 @@ to_upper :: (r: rune) -> rune {
    return r;
 }
 
-to_string :: (r: rune) -> string {
+to_string :: inline (r: rune) -> string {
     return character_utf32_to_utf8(r);
 }
 
-to_string :: (loc: Source_Code_Location) -> string {
-    path := path_filename(loc.fully_pathed_filename);
+to_string :: inline (builder: *String_Builder) -> string {
+    return builder_to_string(builder);
+}
+
+to_string :: (loc: Source_Code_Location, $full_path := false) -> string {
+    #if full_path {
+        path := loc.fully_pathed_filename;
+    }
+    else {
+        path := path_filename(loc.fully_pathed_filename);
+    }
+
     return sprint("%:%,%", path, loc.line_number, loc.character_number);
 }
 
