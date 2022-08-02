@@ -94,6 +94,11 @@ pluralize :: (text: string, number: int) -> string {
     return sprint("%0%", text, ending);
 }
 
+contains :: (array: []$T, value: T) -> bool {
+    for array if it == value return true;
+    return false;
+}
+
 /// Allows a specific block of code to be called with a C context.
 c_call :: (block: Code) #expand {
     ctx: Context;

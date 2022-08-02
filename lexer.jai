@@ -137,6 +137,17 @@ register_handler :: (lexer: *Lexer, predicate: lexer.Predicate, scanner: lexer.S
     handler.scanner   = scanner;
 }
 
+lex :: (lexer: *Lexer, filename: string) -> (ok: bool) {
+    contents, ok := read_entire_file(file);
+    if !ok {
+        error(lexer, "Unable to read file '%'", filename);
+        return false;
+    }
+
+    lexer.source = contents;
+    return lex(lexer);
+}
+
 lex :: (lexer: *Lexer) -> (ok: bool) {
     decl_peek(lexer);
 
