@@ -131,6 +131,15 @@ round :: inline (tick: Tick) -> Tick {
 
 #scope_file;
 
+#if RUN_INTERNAL_TESTS #run {
+   suite("Ticker", #code {
+      test("compiles", (t: *Test) {
+         ticker: Tick_Event_Handler;
+         do_event_tick(*ticker);
+      });
+   });
+}
+
 libc_trunc :: (value: float32) -> float32 #foreign libc_math "truncf";
 libc_math  :: #foreign_system_library "libc";
 

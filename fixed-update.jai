@@ -51,5 +51,15 @@ hi_res_time_in_seconds :: inline () -> float64 {
 
 #scope_file;
 
+#if RUN_INTERNAL_TESTS #run {
+   suite("Fixed Update", #code {
+      test("compiles", (t: *Test) {
+         fu: Fixed_Update;
+         init(*fu);
+         do_fixed_update(*fu, #code {});
+      });
+   });
+}
+
 #import "Basic";
 
