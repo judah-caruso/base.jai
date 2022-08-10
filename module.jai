@@ -16,7 +16,7 @@ f64  :: #type float64;
 #load "utilities.jai";
 #load "compile-time.jai";
 #load "static-array.jai";
-#load "fixed-updated.jai";
+#load "fixed-update.jai";
 
 #import "String";
 #import "Basic";
