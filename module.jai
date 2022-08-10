@@ -10,11 +10,13 @@ f64  :: #type float64;
 #load "lexer.jai";
 #load "union.jai";
 #load "maybe.jai";
+#load "ticker.jai";
 #load "testing.jai";
 #load "iterators.jai";
 #load "utilities.jai";
 #load "compile-time.jai";
 #load "static-array.jai";
+#load "fixed-updated.jai";
 
 #import "String";
 #import "Basic";
