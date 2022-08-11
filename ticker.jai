@@ -49,19 +49,19 @@ Tick :: #type f64;
 Tick_Event_Proc   :: #type (current_tick: Tick, data: *void) -> (remove_after: bool);
 Tick_Cleanup_Proc :: #type (ending_tick: Tick,  data: *void);
 
-Tick_Event_Handler :: struct(MAX_TICK := 100, TIME_SCALE := 1.0) {
+Tick_Event_Handler :: struct(MAX_TICK := 100) {
    tick: Tick;
-   events: [..]Tick_Data;
-   scale := TIME_SCALE;
+   events: [..]Event_Data;
 }
 
-Tick_Data :: struct {
+Event_Data :: struct {
    tick_rate:  Tick;
    event_proc: Tick_Event_Proc;
    event_data: *void;
    clean_proc: Tick_Cleanup_Proc;
    clean_data: *void;
-   counter:    Tick;
+   cleaned:    bool;
+   last_tick:  Tick;
 }
 
 register_event :: (
@@ -72,7 +72,7 @@ register_event :: (
    clean_proc: Tick_Cleanup_Proc = null,
    clean_data: *void = null
 ) {
-   assert(tick_rate < MAX_TICK, "Tick rate % is larger than the maximum of %", tick_rate, MAX_TICK);
+   assert(tick_rate <= MAX_TICK, "Tick rate % is larger than the maximum of %", tick_rate, MAX_TICK);
 
    event := array_add(*events);
    event.tick_rate  = tick_rate;
@@ -82,46 +82,34 @@ register_event :: (
    event.clean_data = clean_data;
 }
 
-set_timescale :: (using handler: *Tick_Event_Handler, timescale: float) {
-   scale = timescale;
-}
+do_event_tick :: (using handler: *Tick_Event_Handler, dt: float64 = 1.0) -> Tick {
+   tick += 1 * dt;
 
-reset_timescale :: (using handler: *Tick_Event_Handler) {
-   scale = TIME_SCALE;
-}
-
-do_event_tick :: (using handler: *Tick_Event_Handler, dt: float64 = 1.0) {
-   tick += 1 * scale * dt;
-
-   event_id := 0;
-   while event_id < events.count {
-      event    := *events[event_id];
-      do_event := false;
-
-      if event.counter >= event.tick_rate {
-         do_event = true;
-         event.counter = 0;
-      }
-      else {
-         event.counter += 1 * scale * dt;
-      }
-      
-      if do_event {
+   for * event: events if !event.cleaned {
+      diff := tick - event.last_tick;
+      if diff >= event.tick_rate {
          needs_removal := event.event_proc(tick, event.event_data);
          if needs_removal {
             if event.clean_proc {
                event.clean_proc(tick, event.clean_data);
             }
 
-            array_unordered_remove_by_index(*events, event_id);
+            event.cleaned = true;
             continue;
          }
-      }
 
-      event_id += 1;
+         event.last_tick = tick - abs(diff - event.tick_rate);
+      }
    }
 
-   if tick >= MAX_TICK then tick = 0;
+   tick_ran := tick;
+   if tick > MAX_TICK {
+      tick = 0;
+      // @Todo(Judah): Can this be done in the above loop automatically?
+      for * events if !it.cleaned then it.last_tick = 0;
+   }
+
+   return tick_ran;
 }
 
 round :: inline (tick: Tick) -> Tick {
@@ -143,3 +131,4 @@ round :: inline (tick: Tick) -> Tick {
 libc_trunc :: (value: float32) -> float32 #foreign libc_math "truncf";
 libc_math  :: #foreign_system_library "libc";
 
+#import "Math";
