@@ -10,6 +10,7 @@ f64  :: #type float64;
 #load "lexer.jai";
 #load "union.jai";
 #load "maybe.jai";
+#load "base64.jai";
 #load "ticker.jai";
 #load "testing.jai";
 #load "iterators.jai";

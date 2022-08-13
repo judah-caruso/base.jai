@@ -92,7 +92,8 @@ do_event_tick :: (using handler: *Event_Handler, dt: float64 = 1.0) -> Tick {
                event.clean_proc(tick, event.event_data);
             }
 
-            event.cleaned = true;
+            event.cleaned   = true;
+            event.last_tick = tick;
             continue;
          }
 

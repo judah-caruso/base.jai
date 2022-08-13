@@ -107,18 +107,18 @@ push :: array_add;
 pop :: inline (array: *Static_Array) -> array.T {
     assert(array.count >= 1, "Tried to pop too many elements");
 
-    defer {
-        array.elements[array.count - 1] = array._zero_value;
-        array.count -= 1;
-    }
+    element := array.elements[array.count - 1];
 
-    return array.elements[array.count - 1];
+    array.elements[array.count - 1] = array._zero_value;
+    array.count -= 1;
+    return element;
 }
 
-pop_pointer :: inline (array: *Static_Array) -> *array.T {
+pop_pointer :: inline (array: *Static_Array) -> *array.T #must {
     assert(array.count >= 1, "Tried to pop too many elements");
-    defer array.count -= 1;
-    return *array.elements[array.count - 1];
+    element := *array.elements[array.count - 1];
+    array.count -= 1;
+    return element;
 }
 
 to_array :: (array: Static_Array) -> []array.T {
