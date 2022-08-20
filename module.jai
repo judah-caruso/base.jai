@@ -15,6 +15,7 @@ f64  :: #type float64;
 #load "testing.jai";
 #load "iterators.jai";
 #load "utilities.jai";
+#load "color-print.jai";
 #load "compile-time.jai";
 #load "static-array.jai";
 #load "fixed-update.jai";
