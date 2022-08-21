@@ -60,11 +60,8 @@ suite :: ($name: string, $enabled: bool, $verbose: bool, tests: Code, loc := #ca
 
     #insert_internal tests;
 
-    print(".. Group ");
-    print_color("% ", suite.name, color = FOREGROUND_INTENSITY);
-
     test_word := pluralize("test", suite.tests.count);
-    print_color("(% %)\n", suite.tests.count, test_word, color = FOREGROUND_BLUE);
+    color_print(".. Group @bold{%} @blue{(% %)}\n", suite.name, suite.tests.count, test_word);
 
     longest_name := 0;
     for suite.tests if it.name.count > longest_name {
@@ -87,8 +84,7 @@ suite :: ($name: string, $enabled: bool, $verbose: bool, tests: Code, loc := #ca
             dots = builder_to_string(*builder);
         }
 
-        print("    Test ");
-        print_color("%0% ", test.name, dots, color = FOREGROUND_INTENSITY);
+        color_print("    Test @bold{%0%} ", test.name, dots);
 
         begin := current_time_monotonic();
         it.proc(*test);
@@ -99,17 +95,15 @@ suite :: ($name: string, $enabled: bool, $verbose: bool, tests: Code, loc := #ca
         if it.status == {
             case .Pass;
                 suite.passed += 1;
-                print_color("pass ", color = FOREGROUND_GREEN);
+                color_print("@green{pass} ");
 
                 #if verbose {
-                    print_color("(took %s)", it.duration_in_sec, color = FOREGROUND_BLUE);
+                    color_print("@blue{(took %s)}", it.duration_in_sec);
                 }
 
             case .Fail;
                 suite.failed += 1;
-                print_color("fail ", color = FOREGROUND_RED);
-                print("at ");
-                print_color("%", to_string(it.location), color = FOREGROUND_INTENSITY);
+                color_print("@red{fail} at @bold{%}", to_string(it.location));
 
                 #if verbose {
                     print("\n");
@@ -135,15 +129,13 @@ suite :: ($name: string, $enabled: bool, $verbose: bool, tests: Code, loc := #ca
                     expr_str := replace(builder_to_string(*builder), "%", "%%");
 
                     if it.error_message.count {
-                        print("\t % ", it.error_message);
-                        print_color("in ", color = FOREGROUND_INTENSITY);
+                        color_print("\t @italic{%} @bold{in} ", it.error_message);
                     }
                     else {
                         print("\t Failed call was ");
                     }
 
-                    print_color(expr_str, color = FOREGROUND_RED);
-                    print("\n");
+                    color_print("@red{%}", expr_str);
                 }
                 else {
                     if it.error_message.count {
@@ -157,19 +149,17 @@ suite :: ($name: string, $enabled: bool, $verbose: bool, tests: Code, loc := #ca
 
     end := current_time_monotonic();
 
-    print(".. Group ");
-    print_color("% ", suite.name, color = FOREGROUND_INTENSITY);
+    color_print(".. Group @bold{%} ", suite.name);
 
     if suite.failed {
-        print_color("failed ", color = FOREGROUND_RED);
-        print("%/% % ", suite.failed, suite.tests.count, test_word);
+        color_print("@red{failed} %/% % ", suite.failed, suite.tests.count, test_word);
     }
     else {
-        print_color("passed ", color = FOREGROUND_GREEN);
+        color_print("@green{passed} ");
     }
 
     #if verbose {
-        print_color("(took %s)", to_float64_seconds(end - start), color = FOREGROUND_BLUE);
+        color_print("@blue{(took %s)}", to_float64_seconds(end - start));
     }
 
     print("\n\n");
