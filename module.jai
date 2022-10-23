@@ -7,18 +7,19 @@ rune :: #type u32;
 f32  :: #type float32;
 f64  :: #type float64;
 
-#load "lexer.jai";
-#load "union.jai";
-#load "maybe.jai";
 #load "base64.jai";
-#load "ticker.jai";
-#load "testing.jai";
-#load "iterators.jai";
-#load "utilities.jai";
+#load "bit-set.jai";
 #load "color-print.jai";
 #load "compile-time.jai";
-#load "static-array.jai";
 #load "fixed-update.jai";
+#load "iterators.jai";
+#load "lexer.jai";
+#load "maybe.jai";
+#load "static-array.jai";
+#load "testing.jai";
+#load "ticker.jai";
+#load "union.jai";
+#load "utilities.jai";
 
 #import "String";
 #import "Basic";
