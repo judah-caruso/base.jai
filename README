@@ -1,8 +1,8 @@
-:: Base
+.. Base
    My personal library for Jai.
 
 
-:: Details
+.. Details
     - Tagged unions (union.jai)
     - Optional type (maybe.jai)
     - Automated tests (testing.jai)
@@ -17,10 +17,11 @@
     Internal tests suite can be ran using 'jai _run_all_tests.jai'
 
 
-:: Installation
-    Copy/paste files as needed, or clone the entire repo and write
-        #load "base/module.jai"
+.. Installation
+    Copy files as needed or clone the entire repo and import:
+        - #load "base/module.jai";
+        - #import,file "base/module.jai";
 
 
-:: License - Unlicense (Public Domain)
+.. License - Unlicense (Public Domain)
    See LICENSE for full notice

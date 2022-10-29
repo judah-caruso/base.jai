@@ -1,10 +1,3 @@
-/// Runs 'main' (or another procedure) at compile-time without generating an executable.
-ct_run_in_bytecode :: ($entrypoint := "main") #expand {
-   #import "Compiler";
-   set_build_options_dc(.{ do_output = false });
-   #insert -> string { return sprint("%();", entrypoint); }
-}
-
 /// Runs 'entrypoint' at compile-time without generating an executable.
 ct_run_in_bytecode :: (entrypoint: $PROC)
 #expand
@@ -14,9 +7,32 @@ ct_run_in_bytecode :: (entrypoint: $PROC)
     return true;
 }
 {
-   #import "Compiler";
    set_build_options_dc(.{ do_output = false });
    entrypoint();
+}
+
+ct_compile_to_binary :: (binary_name: string, use_bin_dir := true) #expand {
+    options: Build_Options_During_Compile;
+    options.do_output              = true;
+    options.write_added_strings    = false;
+    options.output_executable_name = binary_name;
+
+    if use_bin_dir {
+        #if OS == .WINDOWS {
+            SEPARATOR :: "\\";
+        } else {
+            SEPARATOR :: "/";
+        }
+
+        path := get_working_directory();
+        path = join(path, "bin", separator = SEPARATOR);
+
+        assert(make_directory_if_it_does_not_exist(path));
+
+        options.output_path = path;
+    }
+
+    set_build_options_dc(options);
 }
 
 /// Returns the zero-value of 'T'
@@ -141,3 +157,6 @@ ct_return_type_of_iterator :: (type: $T, $iterator: Iterator) -> Type {
         });
     });
 }
+
+#import "File";
+#import "Compiler";

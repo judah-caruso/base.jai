@@ -26,7 +26,7 @@ Text_Style :: enum u8 {
 
 // @Todo(Judah): Windows shouldn't rely on ANSI sequences sadly...
 // @Note(Judah): Maybe make 'format_string' $$ so we can do search/replace at compile-time
-color_print :: (format_string: string, args: ..Any) -> int {
+color_print :: (format_string: string, args: ..Any, stderr := false) -> int {
    builder: String_Builder;
    builder.allocator = temporary_allocator;
    print_to_builder(*builder, format_string, ..args);
@@ -69,6 +69,11 @@ color_print :: (format_string: string, args: ..Any) -> int {
                         set_background = !set_background;
                      case "blue";
                         if set_background then back = .Blue; else fore = .Blue;
+                        set_background = !set_background;
+
+                     case "yellow"; #through;
+                     case "orange";
+                        if set_background then back = .Orange; else fore = .Orange;
                         set_background = !set_background;
 
                      case "bold";
@@ -153,7 +158,8 @@ color_print :: (format_string: string, args: ..Any) -> int {
 
       cursor += 1;
    }
-   return write_builder(*builder);
+
+   return write_builder(*builder, to_standard_error = stderr);
 } @PrintLike
 
 
