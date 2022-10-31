@@ -2,7 +2,8 @@ Static_Array :: struct(CAPACITY: int, T: Type) {
     elements: [CAPACITY]T;
     count: int;
 
-    _zero_value : T = ---; // 'Private' value used when removing
+    // @Todo: Can this be made constant?
+    ZERO : T = ---; // 'Private' value used when removing
 }
 
 array_add :: inline (array: *Static_Array, element: array.T) {
@@ -28,7 +29,7 @@ array_reset_keeping_memory :: inline (array: *Static_Array) {
 }
 
 array_reset :: inline (array: *Static_Array) {
-    for 0..array.count - 1 array.elements[it] = array._zero_value;
+    for 0..array.count - 1 array.elements[it] = array.ZERO;
     array.count = 0;
 }
 
@@ -45,7 +46,7 @@ array_ordered_remove_by_index :: inline (array: *Static_Array, index: int) {
 
     for index..array.count - 2 {
         array.elements[it]     = array.elements[it + 1];
-        array.elements[it + 1] = array._zero_value;
+        array.elements[it + 1] = array.ZERO;
     }
 
     array.count -= 1;
@@ -57,7 +58,7 @@ array_unordered_remove_by_index :: inline (array: *Static_Array, index: int) {
 
     if array.count > 1 && index != array.count - 1 {
         array.elements[index]           = array.elements[array.count - 1];
-        array.elements[array.count - 1] = array._zero_value;
+        array.elements[array.count - 1] = array.ZERO;
     }
 
     array.count -= 1;
@@ -109,7 +110,7 @@ pop :: inline (array: *Static_Array) -> array.T {
 
     element := array.elements[array.count - 1];
 
-    array.elements[array.count - 1] = array._zero_value;
+    array.elements[array.count - 1] = array.ZERO;
     array.count -= 1;
     return element;
 }
@@ -165,7 +166,7 @@ ensure_array_has_room :: (array: *Static_Array, count: int, loc := #caller_locat
             array_reset(*dynamic);
             array_reset(*static);
             expect(t, dynamic.count == static.count, "arrays had unmatched counts after reset: % vs. %", dynamic.count, static.count);
-            for static expect(t, it == static._zero_value, "%th element wasn't zeroed out: %", it_index, it);
+            for static expect(t, it == static.ZERO, "%th element wasn't zeroed out: %", it_index, it);
         });
 
         test("array_to_dynamic", (t: *Test) {

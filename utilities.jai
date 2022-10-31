@@ -90,7 +90,7 @@ join :: (values: ..rune, separator := "", $before_first := false, $after_last :=
 
 pluralize :: (text: string, number: int) -> string {
     if number == 1 return text;
-    ending := ifx text.data[text.count - 1] == #char "s" then "'" else "s";
+    ending := ifx text.data[text.count - 1] == #char "s" then "" else "s";
     return sprint("%0%", text, ending);
 }
 
@@ -189,7 +189,7 @@ consume_array :: (src: *[]$T) -> T, bool {
         test("pluralize", (t: *Test) {
             expect(t, pluralize("foo", 0)  == "foos");
             expect(t, pluralize("foo", 1)  == "foo");
-            expect(t, pluralize("bars", 0) == "bars'");
+            expect(t, pluralize("bars", 0) == "bars");
             expect(t, pluralize("bars", 1) == "bars");
         });
 
