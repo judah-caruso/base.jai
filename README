@@ -8,7 +8,7 @@
     - Automated tests (testing.jai)
     - Iterators/Array utilities (iterators.jai)
     - Static array with [..]T API (static-array.jai)
-    - Odin-like bitsets (bit-set.jai)
+    - Odin-like bitsets (bitset.jai)
     - General purpose lexer (lexer.jai)
     - Fixed update loop (fixed-update.jai)
     - Tick-based event system (ticker.jai)
