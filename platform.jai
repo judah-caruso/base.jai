@@ -1,7 +1,9 @@
 #if OS == .WINDOWS {
-   PLATFORM_SEPARATOR :: "\\";
+   PLATFORM_SEPARATOR   :: "\\";
+   PLATFORM_LINE_ENDING :: "\r\n";
 } else {
-   PLATFORM_SEPARATOR :: "/";
+   PLATFORM_SEPARATOR   :: "/";
+   PLATFORM_LINE_ENDING :: "\n";
 }
 
 /*
