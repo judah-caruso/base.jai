@@ -1,3 +1,5 @@
+/// Iterator interface with functional-style utilities (I have never used this)
+
 /// If the parameter is constant, this allows iterators to be passed to procedures
 Iterator :: #type (value: *$T, body: Code, flags: For_Flags);
 
@@ -53,6 +55,7 @@ map :: (input: []$I, proc: (I) -> $O) -> []O {
     return output;
 }
 
+// @Todo: Remove the output parameter, have it return []O
 map_iter :: (input: $I, output: *[..]$O, $iter: Iterator, proc: (O) -> $B) {
     for :iter input array_add(output, proc(it));
 }

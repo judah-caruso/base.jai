@@ -1,7 +1,9 @@
-base64_encode :: (data: []u8, $for_url := false, $with_padding := false) -> []u8, bool  {
+/// Simple base64 encoder/decoder
+
+base64_encode :: (data: []u8, $for_url := false, $with_padding := false, allocator := context.allocator) -> []u8, bool  {
    if !data.count return .[], false;
 
-   encoded := NewArray(encoded_length(data.count, with_padding), u8, true, temporary_allocator);
+   encoded := NewArray(encoded_length(data.count, with_padding), u8, true, allocator);
    if !encoded.count return .[], false;
 
    #if for_url {
@@ -57,22 +59,22 @@ base64_encode :: (data: []u8, $for_url := false, $with_padding := false) -> []u8
    return encoded, true;
 }
 
-base64_encode :: (str: string, $for_url := false, $with_padding := false) -> []u8, bool {
+base64_encode :: (str: string, $for_url := false, $with_padding := false, allocator := context.allocator) -> []u8, bool {
    data: []u8 = ---;
    data.data  = str.data;
    data.count = str.count;
 
-   encoded, ok := base64_encode(data, for_url, with_padding);
+   encoded, ok := base64_encode(data, for_url, with_padding, allocator);
    return encoded, ok;
 }
 
-base64_decode :: (data: []u8) -> []u8, bool {
+base64_decode :: (data: []u8, allocator := context.allocator) -> []u8, bool {
    if !data.count return .[], false;
 
    padding := 0;
    for < data.count - 1..0 if data[it] == PADDING_VALUE then padding += 1; else break;
 
-   decoded := NewArray(((6 * data.count) / 8) - padding, u8, true, temporary_allocator);
+   decoded := NewArray(((6 * data.count) / 8) - padding, u8, true, allocator);
    if !decoded.count return .[], false;
 
    lookup :: (c: u8) -> u8 #expand {
@@ -130,12 +132,12 @@ base64_decode :: (data: []u8) -> []u8, bool {
    return decoded, true;
 }
 
-base64_decode :: inline (str: string) -> string, bool {
+base64_decode :: inline (str: string, allocator := context.allocator) -> string, bool {
    data: []u8 = ---;
    data.data  = str.data;
    data.count = str.count;
 
-   decoded, ok := base64_decode(data);
+   decoded, ok := base64_decode(data, allocator);
    return to_string(decoded), ok;
 }
 

@@ -1,5 +1,5 @@
-/// A compile-time testing module.
-/// Below is a standard usage guide:
+/// Compile-time testing
+
 /*
     Testing is comprised of:
         - Suites: groups of tests under a single name

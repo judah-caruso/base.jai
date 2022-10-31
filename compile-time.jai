@@ -1,3 +1,5 @@
+/// Various compile-time utilities
+
 /// Runs 'entrypoint' at compile-time without generating an executable.
 ct_run_in_bytecode :: (entrypoint: $PROC)
 #expand
@@ -11,6 +13,7 @@ ct_run_in_bytecode :: (entrypoint: $PROC)
    entrypoint();
 }
 
+/// Compiles the file this is #ran in.
 ct_compile_to_binary :: (binary_name: string, use_bin_dir := true) #expand {
     options: Build_Options_During_Compile;
     options.do_output              = true;
@@ -18,14 +21,8 @@ ct_compile_to_binary :: (binary_name: string, use_bin_dir := true) #expand {
     options.output_executable_name = binary_name;
 
     if use_bin_dir {
-        #if OS == .WINDOWS {
-            SEPARATOR :: "\\";
-        } else {
-            SEPARATOR :: "/";
-        }
-
         path := get_working_directory();
-        path = join(path, "bin", separator = SEPARATOR);
+        path = join(path, "bin", separator = PLATFORM_SEPARATOR);
 
         assert(make_directory_if_it_does_not_exist(path));
 

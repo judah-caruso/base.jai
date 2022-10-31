@@ -1,3 +1,5 @@
+/// Rust-like optional type
+
 Maybe :: struct(T: Type, SENTINEL: $S = void) {
     #if USES_SENTINEL {
         value: T = SENTINEL;
@@ -103,6 +105,7 @@ is_none :: (maybe: Maybe) -> bool {
 
         test("sentinel value", (t: *Test) {
             Valid_Index :: Maybe(int, -1);
+
             valid_index   :: (value: Valid_Index.T) -> Valid_Index #expand { return some(value, Valid_Index.SENTINEL); }
             invalid_index :: () -> Valid_Index #expand { return none(Valid_Index.T, Valid_Index.SENTINEL); }
 

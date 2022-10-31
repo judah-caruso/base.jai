@@ -1,3 +1,5 @@
+/// Platform-specific utilities
+
 #if OS == .WINDOWS {
    PLATFORM_SEPARATOR   :: "\\";
    PLATFORM_LINE_ENDING :: "\r\n";

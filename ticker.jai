@@ -1,4 +1,4 @@
-/// Ticker is a tick-based event system.
+/// A tick-based event system
 
 /*
    Usage:

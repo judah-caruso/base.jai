@@ -1,6 +1,4 @@
-/*
-   Simple Odin-like bitset
-*/
+/// Simple Odin-like bitset
 
 Bit_Set :: struct(T: Type)
 #modify {

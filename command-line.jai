@@ -1,10 +1,11 @@
+/// Parses command-line arguments into a given struct
+
 // @Todo:
 // - API should be a single call: give it the type
 // you want returned and it'll take care of the rest.
 // - It should generate '-h', -help', '--help' strings
 // outlining expected arguments and what values they
 // can take.
-
 parse_command_line_args :: ($T: Type, usage_str := "") -> (*T, ok: bool, err: string) {
    #insert -> string { // #modify doesn't work here?
       info := type_info(T);

@@ -1,3 +1,5 @@
+/// A fixed-size array with the API of a [..]T
+
 Static_Array :: struct(CAPACITY: int, T: Type) {
     elements: [CAPACITY]T;
     count: int;

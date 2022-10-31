@@ -1,5 +1,4 @@
-/// Lexer is a general purpose lexing module for turning plaintext
-/// into an array of user-defined tokens. Below is a standard usage guide:
+/// General purpose lexing
 
 /*
     A lexer can be instantiated like so:

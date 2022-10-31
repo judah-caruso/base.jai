@@ -1,28 +1,4 @@
-Foreground_Color :: enum u8 {
-   Black  :: 30;
-   Red    :: 31;
-   Green  :: 32;
-   Orange :: 33;
-   Blue   :: 34;
-}
-
-Background_Color :: enum u8 {
-   Black  :: 40;
-   Red    :: 41;
-   Green  :: 42;
-   Orange :: 43;
-   Blue   :: 44;
-}
-
-Text_Style :: enum u8 {
-   Bold      :: 1;
-   Dim       :: 2;
-   Italic    :: 3;
-   Underline :: 4;
-   Blink     :: 5;
-   Invert    :: 7;
-   Strike    :: 9;
-}
+/// Colored console output
 
 // @Todo(Judah): Windows shouldn't rely on ANSI sequences sadly...
 // @Note(Judah): Maybe make 'format_string' $$ so we can do search/replace at compile-time
@@ -162,6 +138,31 @@ color_print :: (format_string: string, args: ..Any, stderr := false) -> int {
    return write_builder(*builder, to_standard_error = stderr);
 } @PrintLike
 
+Foreground_Color :: enum u8 {
+   Black  :: 30;
+   Red    :: 31;
+   Green  :: 32;
+   Orange :: 33;
+   Blue   :: 34;
+}
+
+Background_Color :: enum u8 {
+   Black  :: 40;
+   Red    :: 41;
+   Green  :: 42;
+   Orange :: 43;
+   Blue   :: 44;
+}
+
+Text_Style :: enum u8 {
+   Bold      :: 1;
+   Dim       :: 2;
+   Italic    :: 3;
+   Underline :: 4;
+   Blink     :: 5;
+   Invert    :: 7;
+   Strike    :: 9;
+}
 
 #scope_file;
 
