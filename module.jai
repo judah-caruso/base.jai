@@ -14,6 +14,7 @@ f64  :: #type float64;
 /// binding code. They've been placed in a
 /// struct to namespace the types.
 c :: struct {
+   // @Todo: Should I even handle 32bit since it's not a compilation target?
    #if OS == .WINDOWS {
       char                   :: #type u8;
       short                  :: #type s16;
