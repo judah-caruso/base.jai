@@ -38,6 +38,18 @@ transmute :: ($T: Type, expr: Code, loc := #caller_location) -> T #expand {
     return <<as(*T, *value);
 }
 
+kilobyte :: (i: $T) -> T #expand {
+    return 1024 * i;
+}
+
+megabyte :: (i: $T) -> T #expand {
+    return 1024 * kilobyte(i);
+}
+
+gigabyte :: (i: $T) -> T #expand {
+    return 1024 * megabyte(i);
+}
+
 to_array :: inline (args: ..$T) -> []T { return args; }
 
 to_upper :: (r: rune) -> rune {

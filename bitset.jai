@@ -16,6 +16,10 @@ Bit_Set :: struct(T: Type)
    values: T;
 }
 
+reset :: (set: *Bit_Set) {
+   set.values = 0;
+}
+
 operator+ :: (set: Bit_Set, value: set.T) -> Bit_Set(set.T) {
    s := set;
    s.values |= value;
