@@ -130,7 +130,7 @@ c :: struct {
 #load "iterators.jai";
 #load "lexer.jai";
 #load "maybe.jai";
-// #load "platform.jai";
+#load "platform.jai";
 #load "static-array.jai";
 #load "testing.jai";
 #load "ticker.jai";
