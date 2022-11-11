@@ -171,6 +171,7 @@ get_name_of_current_procedure :: () -> string {
 /// just want basic consume/peek functionality.
 
 /// Unicode character peeking/consuming
+// @Todo: Don't rely on character_utf8_to_utf32.
 peek_rune :: (src: string) -> rune, bool, int {
     if !src.count return 0, false, 0;
 
@@ -190,6 +191,26 @@ consume_rune :: (src: *string) -> rune, bool, int {
     src.count -= width;
 
     return rune, true, width;
+}
+
+rune_width :: (r: rune) -> int {
+    if r < 0 return -1;
+
+    if r <= 0x7F  return 1;
+    if r <= 0x7FF return 2;
+
+    if r >= 0xD800 &&
+       r <= 0xDFFF return -1;
+
+    if r <= 0xFFFF   return 3;
+    if r <= 0x10FFFF return 4;
+
+    return -1;
+}
+
+// @Todo: Remove the 'to_string' call when we update 'consume/peek_rune'
+append :: inline (builder: *String_Builder, r: rune) {
+    append(builder, to_string(r));
 }
 
 
@@ -401,6 +422,45 @@ consume_array :: (src: *[]$T) -> T, bool {
 
             expect(t, view_a   != view_b);
             expect(t, output_a != output_b);
+        });
+
+        test("rune width", (t: *Test) {
+            tests := (struct { value: rune; expected: int; }).[
+                .{ 0, 1 },
+                .{ #char "a", 1 },
+                .{ #char "é", 2 },
+                .{ #char "ㅋ", 3 },
+                .{ 0x10FFFF, 4 },
+                .{ 0xD800, -1 },
+                .{ 0xDFFF, -1 },
+                .{ 0x10FFFF + 1, -1 },
+            ];
+
+            for tests {
+                width := rune_width(it.value);
+                expect(t, width == it.expected,
+                    "rune '%' should have a width of %, instead was %",
+                    to_string(it.value),
+                    it.expected,
+                    width,
+                );
+            }
+        });
+
+        test("rune append", (t: *Test) {
+            str := "안녕하세요 :)";
+
+            builder: String_Builder;
+
+            copy := str;
+            while copy.count {
+                r, ok := consume_rune(*copy);
+                if !ok break;
+                append(*builder, r);
+            }
+
+            out := to_string(*builder);
+            expect(t, out == str, "expected '%' to equal '%'", out, str);
         });
     });
 }
