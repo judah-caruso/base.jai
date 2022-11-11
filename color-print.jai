@@ -1,6 +1,8 @@
 /// Colored console output
 
 // @Todo(Judah): Windows shouldn't rely on ANSI sequences sadly...
+// @Todo(Judah): Use new consume/view API
+// @Todo(Judah): Support unicode?
 // @Note(Judah): Maybe make 'format_string' $$ so we can do search/replace at compile-time
 color_print :: (format_string: string, args: ..Any, stderr := false) -> int {
    builder: String_Builder;
@@ -15,6 +17,14 @@ color_print :: (format_string: string, args: ..Any, stderr := false) -> int {
       if chr == {
          case #char "@";
             cursor += 1;
+
+            // Escaped '@'
+            if cursor < pre_expanded.count && pre_expanded[cursor] == #char "@" {
+               cursor += 1;
+               append(*builder, #char "@");
+               continue;
+            }
+
             if cursor >= pre_expanded.count && context.print_style.log_runtime_errors {
                log_error("Expected style declaration after @ at character %", cursor);
                return 0;
