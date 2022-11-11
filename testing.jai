@@ -46,10 +46,10 @@ Test :: struct {
 }
 
 suite :: ($name: string, tests: Code, loc := #caller_location) #expand {
-    suite(name, true, true, tests, loc);
+    suite(name, true, true, true, tests, loc);
 }
 
-suite :: ($name: string, $enabled: bool, $verbose: bool, tests: Code, loc := #caller_location) #expand {
+suite :: ($name: string, $enabled: bool, $verbose: bool, $halt_on_fail: bool, tests: Code, loc := #caller_location) #expand {
     #if !enabled return;
 
     set_build_options_dc(.{ do_output = false });
@@ -150,6 +150,10 @@ suite :: ($name: string, $enabled: bool, $verbose: bool, tests: Code, loc := #ca
     end := current_time_monotonic();
 
     color_print(".. Group @bold{%} ", suite.name);
+
+    #if halt_on_fail defer {
+        if suite.failed exit(1);
+    }
 
     if suite.failed {
         color_print("@red{failed} %/% % ", suite.failed, suite.tests.count, test_word);
