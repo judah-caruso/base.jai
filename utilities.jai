@@ -61,6 +61,39 @@ to_upper :: (r: rune) -> rune {
    return r;
 }
 
+/// String_View is a bounds checked string slice
+String_View :: struct {
+    #as value: string;
+    max_length: int;
+}
+
+begin_view :: (str: string) -> String_View {
+    view: String_View;
+    view.value       = str;
+    view.value.count = 0;
+    view.max_length  = str.count;
+    return view;
+}
+
+advance_view :: inline (view: *String_View, by := 1) {
+    assert(view.value.count + by < view.max_length, "Attempt to advance view past maximum length: %", view.max_length);
+    view.value.count += by;
+}
+
+end_view :: inline (view: String_View) -> string {
+    return view;
+}
+
+to_string :: end_view;
+
+operator== :: inline (lhs: String_View, rhs: String_View) -> bool {
+    return lhs.max_length == rhs.max_length && lhs.value == rhs.value;
+}
+
+operator== :: inline (lhs: String_View, rhs: string) -> bool {
+    return lhs.value == rhs;
+}
+
 to_string :: inline (r: rune) -> string {
     return character_utf32_to_utf8(r);
 }
@@ -138,25 +171,25 @@ get_name_of_current_procedure :: () -> string {
 /// just want basic consume/peek functionality.
 
 /// Unicode character peeking/consuming
-peek_rune :: (src: string) -> rune, bool {
-    if !src.count return 0, false;
-
-    rune, _, status := character_utf8_to_utf32(src.data, src.count);
-    if status != .CONVERSION_OK return 0, false;
-
-    return rune, true;
-}
-
-consume_rune :: (src: *string) -> rune, bool {
-    if !src || !src.count return 0, false;
+peek_rune :: (src: string) -> rune, bool, int {
+    if !src.count return 0, false, 0;
 
     rune, width, status := character_utf8_to_utf32(src.data, src.count);
-    if status != .CONVERSION_OK return 0, false;
+    if status != .CONVERSION_OK return 0, false, 0;
+
+    return rune, true, width;
+}
+
+consume_rune :: (src: *string) -> rune, bool, int {
+    if !src || !src.count return 0, false, 0;
+
+    rune, width, status := character_utf8_to_utf32(src.data, src.count);
+    if status != .CONVERSION_OK return 0, false, 0;
 
     src.data  += width;
     src.count -= width;
 
-    return rune, true;
+    return rune, true, width;
 }
 
 
@@ -332,6 +365,42 @@ consume_array :: (src: *[]$T) -> T, bool {
 
                 i += 1;
             }
+        });
+
+        test("string view", (t: *Test) {
+            str := "안녕하세요\n이것은 시험이다~\n";
+            copy := str;
+
+            view_a := begin_view(copy);
+            while copy.count {
+                chr, ok, width := peek_rune(copy);
+                if !ok || chr == #char "\n" break;
+
+                advance_view(*view_a, width);
+                consume_rune(*copy);
+            }
+
+            output_a := end_view(view_a);
+            expect(t, view_a   == "안녕하세요"); // Verify operator overload works as expected
+            expect(t, output_a == "안녕하세요");
+
+            consume_rune(*copy); // Skip '\n'
+
+            view_b := begin_view(copy);
+            while copy.count {
+                chr, ok, width := peek_rune(copy);
+                if !ok || chr == #char " " break;
+
+                advance_view(*view_b, width);
+                consume_rune(*copy);
+            }
+
+            output_b := end_view(view_b);
+            expect(t, view_b   == "이것은");
+            expect(t, output_b == "이것은");
+
+            expect(t, view_a   != view_b);
+            expect(t, output_a != output_b);
         });
     });
 }
