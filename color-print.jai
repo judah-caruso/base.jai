@@ -148,6 +148,30 @@ color_print :: (format_string: string, args: ..Any, stderr := false) -> int {
    return write_builder(*builder, to_standard_error = stderr);
 } @PrintLike
 
+/// This allows the context.logger to be routed through 'color_print'
+color_logger :: (message: string, data: *void, info: Log_Info) {
+   stderr: bool;
+   prefix: string;
+
+   if info.common_flags & .ERROR {
+      stderr = true;
+      prefix = "@bold,red{.. error}";
+   }
+   else if info.common_flags & .WARNING {
+      prefix = "@bold,yellow{.. warn}";
+   }
+   else {
+      prefix = "@bold{.. info}";
+   }
+
+   msg := message;
+   if msg.count && msg[msg.count] - 1 == #char "\n" {
+      msg.count -= 1;
+   }
+
+   color_print(tprint("% %\n", prefix, msg), stderr = stderr);
+}
+
 Foreground_Color :: enum u8 {
    Black  :: 30;
    Red    :: 31;
@@ -182,4 +206,11 @@ is_letter :: (chr: u8) -> bool {
 }
 
 
-
+#if RUN_INTERNAL_TESTS #run {
+   suite("Color Print", #code {
+      test("can be used as logger", (t: *Test) {
+         context.logger = color_logger;
+         expect(t, context.logger == color_logger);
+      });
+   });
+}

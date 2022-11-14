@@ -121,6 +121,7 @@ c :: struct {
    }
 }
 
+#load "allocators.jai";
 #load "base64.jai";
 #load "bitset.jai";
 #load "color-print.jai";

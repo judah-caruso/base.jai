@@ -93,7 +93,7 @@ ct_non_zero_value_of :: ($type: $T) -> string {
             }
 
         case;
-            assert(false, "Type % does not have a one value", T);
+            assert(false, "Type '%' does not have a one value", T);
     }
 
     return "";
@@ -151,6 +151,28 @@ ct_return_type_of_iterator :: (type: $T, $iterator: Iterator) -> Type {
             g: ();
             gz :: #insert #run ct_zero_value_of(type_of(g));
             expect(t, g == gz, "g was % and gz was %", g, gz);
+        });
+
+        test("ct_non_zero_value_of", (t: *Test) {
+            a: int;
+            an :: #insert #run ct_non_zero_value_of(int);
+            expect(t, a != an, "a was % and an was %", a, an);
+
+            b: float32;
+            bn :: #insert #run ct_non_zero_value_of(float32);
+            expect(t, b != bn, "b was % and bn was %", b, bn);
+
+            c: float64;
+            cn :: #insert #run ct_non_zero_value_of(float64);
+            expect(t, c != cn, "c was % and cn was %", c, cn);
+
+            d: bool;
+            dn :: #insert #run ct_non_zero_value_of(bool);
+            expect(t, d != dn, "d was % and dn was %", d, dn);
+
+            e: string;
+            en :: #insert #run ct_non_zero_value_of(string);
+            expect(t, e != en, "e was % and en was %", e, en);
         });
     });
 }
