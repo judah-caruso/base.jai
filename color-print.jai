@@ -165,7 +165,7 @@ color_logger :: (message: string, data: *void, info: Log_Info) {
    }
 
    msg := message;
-   if msg.count && msg[msg.count] - 1 == #char "\n" {
+   if msg.count && msg[msg.count - 1] == #char "\n" {
       msg.count -= 1;
    }
 
