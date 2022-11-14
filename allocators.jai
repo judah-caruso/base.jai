@@ -7,16 +7,17 @@ make_crash_allocator :: () -> Allocator {
 #scope_file;
 
 crash_allocator_proc :: (mode: Allocator_Mode, size: s64, old_size: s64, old_memory: *void, allocator_data: *void) -> *void {
+   message: string;
    if mode == {
       case .ALLOCATE;
-         log("Attempt to allocate % % using the crash allocator!", size, pluralize("byte", size));
+         message = tprint("Attempt to allocate % byte(s) using the crash allocator!", size);
       case .RESIZE;
-         log("Attempt to resize (from % to % %) using the crash allocator!", old_size, size, pluralize("byte", size));
+         message = tprint("Attempt to resize (from % to % byte(s)) using the crash allocator!", old_size, size);
       case .FREE;
-         log("Attempt to free % % using the crash allocator!", size, pluralize("byte", size));
+         message = tprint("Attempt to free % byte(s) using the crash allocator!", size);
    }
 
-   assert(false);
+   assert(false, message);
    return null;
 }
 
