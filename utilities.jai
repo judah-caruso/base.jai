@@ -38,6 +38,81 @@ transmute :: ($T: Type, expr: Code, loc := #caller_location) -> T #expand {
     return <<as(*T, *value);
 }
 
+make :: make_t;
+make :: make_slice;
+make :: make_dynamic_array;
+
+// @Note(Judah): Not sure why making custom_init a partial bake works, bug?
+make_t :: ($T: Type, $$custom_init: (*T) = null) -> T #modify {
+    info := cast(*Type_Info)T;
+    if info.type == .ARRAY {
+        compiler_report(sprint("make_t is not valid on %", T));
+        return false;
+    }
+
+    return true;
+}{
+    val: T = ---;
+
+    ini :: initializer_of(T);
+    #if ini inline ini(*val);
+    else    memset(*val, 0, size_of(T));
+    #if custom_init inline custom_init(*val);
+
+    return val;
+}
+
+make_slice :: ($T: Type, $count := 0, allocator := context.allocator) -> []T #modify {
+    info := cast(*Type_Info)T;
+    if info.type != .ARRAY {
+        compiler_report(sprint("make_slice expects % to be []T", T));
+        return false;
+    }
+
+    arr := cast(*Type_Info_Array)info;
+    if arr.array_type != .VIEW {
+        compiler_report(sprint("make_slice expects % to be []T", T));
+        return false;
+    }
+
+    T = get_type(arr.element_type);
+    return true;
+}{
+    arr := NewArray(count, T, allocator = allocator);
+    return arr;
+}
+
+make_dynamic_array :: ($T: Type, $count := 0, allocator := context.allocator) -> T #modify {
+    info := cast(*Type_Info)T;
+    if info.type != .ARRAY {
+        compiler_report(sprint("make_dynamnic_array expects % to be [..]T", T));
+        return false;
+    }
+
+    arr := cast(*Type_Info_Array)info;
+    if arr.array_type != .RESIZABLE {
+        compiler_report(sprint("make_dynamic_array expects % to be [..]T", T));
+        return false;
+    }
+
+    return true;
+} {
+    dyn: T;
+    dyn.allocator = allocator;
+    #if count > 0 array_reserve(*dyn, count);
+    return dyn;
+}
+
+new :: ($T: Type, allocator := context.allocator) -> *T {
+    return inline New(T, allocator = allocator);
+}
+
+len :: inline (slice: []$T) -> int { return slice.count; }
+cap :: inline (slice: []$T) -> int { return slice.count; }
+
+len :: inline (dyn: [..]$T) -> int { return dyn.count;     }
+cap :: inline (dyn: [..]$T) -> int { return dyn.allocated; }
+
 kilobyte :: (i: $T) -> T #expand {
     return 1024 * i;
 }
@@ -254,14 +329,14 @@ consume_array :: (src: *[]$T) -> T, bool {
 
 #if RUN_INTERNAL_TESTS #run {
     suite("Utilities", #code {
-        test("pluralize", (t: *Test) {
+        test("pluralize", (t) => {
             expect(t, pluralize("foo", 0)  == "foos");
             expect(t, pluralize("foo", 1)  == "foo");
             expect(t, pluralize("bars", 0) == "bars");
             expect(t, pluralize("bars", 1) == "bars");
         });
 
-        test("name of procedure", (t: *Test) {
+        test("name of procedure", (t) => {
             foo :: () -> string { return get_name_of_current_procedure(); }
             bar_baz :: () -> string { return get_name_of_current_procedure(); }
 
@@ -272,7 +347,7 @@ consume_array :: (src: *[]$T) -> T, bool {
             expect(t, no_name == "proc", "unnamed procedure had name '%'", no_name);
         });
 
-        test("verify block", (t: *Test) {
+        test("verify block", (t) => {
             #import "Random";
 
             random_seed(cast(u64)to_nanoseconds(current_time_monotonic()));
@@ -296,7 +371,7 @@ consume_array :: (src: *[]$T) -> T, bool {
             }
         });
 
-        test("unicode peek/consume", (t: *Test) {
+        test("unicode peek/consume", (t) => {
             str := "\n\r안녕하세요\n이것은 시험이다~\n";
             copy := str;
 
@@ -321,7 +396,7 @@ consume_array :: (src: *[]$T) -> T, bool {
             }
         });
 
-        test("ascii peek/consume", (t: *Test) {
+        test("ascii peek/consume", (t) => {
             str := "\n\rHello, World!\nThis is a test\n";
             copy := str;
 
@@ -340,7 +415,7 @@ consume_array :: (src: *[]$T) -> T, bool {
             }
         });
 
-        test("array peek/consume", (t: *Test) {
+        test("array peek/consume", (t) => {
             str_values := string.[ "1", "2", "3", "4", "5" ];
             str_copies : []string = str_values;
 
@@ -388,7 +463,7 @@ consume_array :: (src: *[]$T) -> T, bool {
             }
         });
 
-        test("string view", (t: *Test) {
+        test("string view", (t) => {
             str := "안녕하세요\n이것은 시험이다~\n";
             copy := str;
 
@@ -424,7 +499,7 @@ consume_array :: (src: *[]$T) -> T, bool {
             expect(t, output_a != output_b);
         });
 
-        test("rune width", (t: *Test) {
+        test("rune width", (t) => {
             tests := (struct { value: rune; expected: int; }).[
                 .{ 0, 1 },
                 .{ #char "a", 1 },
@@ -447,7 +522,7 @@ consume_array :: (src: *[]$T) -> T, bool {
             }
         });
 
-        test("rune append", (t: *Test) {
+        test("rune append", (t) => {
             str := "안녕하세요 :)";
 
             builder: String_Builder;
@@ -461,6 +536,122 @@ consume_array :: (src: *[]$T) -> T, bool {
 
             out := to_string(*builder);
             expect(t, out == str, "expected '%' to equal '%'", out, str);
+        });
+
+        test("make_t", (t) => {
+            A :: struct {
+                x: int;
+                y: []int;
+                z: struct {
+                    a: f32;
+                    b: f64;
+                };
+            }
+
+            init_a :: (a: *A)  {
+                a.x   = 100;
+                a.z.a = 3.14;
+            }
+
+            a1 := make(A);
+            expect(t, a1.x       == 0);
+            expect(t, a1.y.count == 0);
+            expect(t, a1.z.a     == 0);
+            expect(t, a1.z.b     == 0);
+
+            a2 := make(A, init_a);
+            expect(t, a2.x       == 100);
+            expect(t, a2.y.count == 0);
+            expect(t, a2.z.a     == 3.14);
+            expect(t, a2.z.b     == 0);
+
+            a3 := make(A, (a: *A) {
+                a.z.b = 3.14;
+            });
+
+            expect(t, a3.x       == 0);
+            expect(t, a3.y.count == 0);
+            expect(t, a3.z.a     == 0);
+            expect(t, a3.z.b     == 3.14);
+
+            // Make sure anonymous types work
+            foo := make(struct{
+                bar := "hello";
+                baz: f32;
+                boz: [..]struct {
+                    biz := "goodbyte";
+                };
+            });
+
+            expect(t, foo.bar == "hello");
+            expect(t, foo.baz == 0);
+            expect(t, foo.boz.count == 0);
+
+            array_add(*foo.boz, .{});
+            expect(t, foo.boz[0].biz == "goodbyte");
+
+            bar := make(struct {
+                total:  int;
+                values: [..]string;
+            }, (b) => {
+                array_add(*b.values, "hello");
+                array_add(*b.values, "world");
+                b.total = 2;
+            });
+
+            expect(t, bar.values.count == bar.total);
+            expect(t, bar.values[0] == "hello");
+            expect(t, bar.values[1] == "world");
+
+            // Make sure primitive types work
+            x := make(int);
+            expect(t, x == 0);
+
+            // Make sure lambdas work
+            y := make(f32, (f) => { <<f = 0.5; });
+            expect(t, y == 0.5);
+        });
+
+        test("make_slice", (t) => {
+            arr1 := make([]int, 10);
+            expect(t, arr1.data  != null);
+            expect(t, arr1.count == 10);
+
+            arr1[arr1.count - 1] = 500;
+            arr1[arr1.count - 2] = 400;
+            expect(t, arr1[arr1.count - 1] == 500);
+            expect(t, arr1[arr1.count - 2] == 400);
+        });
+
+        test("make_dynamic_array", (t) => {
+            arr1 := make([..]int, 10);
+            expect(t, arr1.data      != null);
+            expect(t, arr1.count     == 0);
+            expect(t, arr1.allocated == 10);
+
+            array_add(*arr1, 5, 6);
+            expect(t, arr1[0]        == 5);
+            expect(t, arr1[1]        == 6);
+            expect(t, arr1.count     == 2);
+            expect(t, arr1.allocated == 10);
+        });
+
+        test("len/cap", (t) => {
+            slice: []int;
+            expect(t, len(slice) == 0);
+            expect(t, cap(slice) == 0);
+
+            array: [5]int;
+            expect(t, len(array) == 5);
+            expect(t, cap(array) == 5);
+
+            dyn: [..]int;
+            expect(t, len(dyn) == 0);
+            expect(t, cap(dyn) == 0);
+
+            array_add(*dyn, 1);
+            expect(t, len(dyn) == 1);
+            expect(t, cap(dyn) % 2 == 0);
         });
     });
 }

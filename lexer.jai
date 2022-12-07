@@ -294,7 +294,7 @@ is_whitespace :: (chr: u8) -> bool {
 
 #if RUN_INTERNAL_TESTS #run {
     suite("Lexer", #code {
-        test("empty", (t: *Test) {
+        test("empty", (t) => {
             lexer: Lexer;
             lexer.source = ". int { foo }";
 
@@ -304,7 +304,7 @@ is_whitespace :: (chr: u8) -> bool {
             expect(t, !lexer.tokens.count, "empty lexer should not produce tokens");
         });
 
-        test("unicode", (t: *Test) {
+        test("unicode", (t) => {
             lexer: Lexer;
             lexer.source = "hello, world 123 3.14";
 
@@ -397,7 +397,7 @@ is_whitespace :: (chr: u8) -> bool {
             expect(t, lexer.tokens[4]._float - 3.14 <= 0.1, "expected 4th token to approximately equal 3.14, instead was '%'", lexer.tokens[4]._float);
         });
 
-        test("ascii", (t: *Test) {
+        test("ascii", (t) => {
             is_letter :: (chr: u8) -> bool {
                 return chr >= #char "a" && chr <= #char "z" ||
                        chr >= #char "A" && chr <= #char "Z";

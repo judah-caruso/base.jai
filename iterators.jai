@@ -75,13 +75,13 @@ filter_iter :: (input: $I, output: *[..]$O, $iter: Iterator, proc: (O) -> bool) 
 
 #if RUN_INTERNAL_TESTS #run {
     suite("Iterators", #code {
-        test("filter", (t: *Test) {
+        test("filter", (t) => {
             numbers  := int.[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ];
             filtered := filter(numbers, (num) => num % 2 == 0);
             expect(t, filtered.count == 7, "found too many numbers: % (%)", filtered, filtered.count);
         });
 
-        test("collect", (t: *Test) {
+        test("collect", (t) => {
             str := "x안녕하세요x";
 
             runes: [..]rune;
@@ -95,7 +95,7 @@ filter_iter :: (input: $I, output: *[..]$O, $iter: Iterator, proc: (O) -> bool) 
             expect(t, only_valid.count == 2);
         });
 
-        test("map", (t: *Test) {
+        test("map", (t) => {
             array := int.[ 0, 1, 2, 3, 4, 5 ];
             multiplied := map(array, (n) => n * 2);
             expect(t, array.count == multiplied.count, "map returned array of differing size: % != %", array.count, multiplied.count);
@@ -105,7 +105,7 @@ filter_iter :: (input: $I, output: *[..]$O, $iter: Iterator, proc: (O) -> bool) 
             }
         });
 
-        test("map_iter", (t: *Test) {
+        test("map_iter", (t) => {
             str := "hello, world! 안녕하세요~";
 
             runes: [..]rune;
@@ -116,7 +116,7 @@ filter_iter :: (input: $I, output: *[..]$O, $iter: Iterator, proc: (O) -> bool) 
             expect(t, runes2.count == runes.count - 10);
         });
 
-        test("Static_Array", (t: *Test) {
+        test("Static_Array", (t) => {
             static: Static_Array(10, int);
             array_add(*static, 1, 2, 3, 4);
 

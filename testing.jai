@@ -19,6 +19,10 @@
             test("some test", (t: *Test) {
                 // ...
             });
+
+            test("this also works", (t) => {
+                // ...
+            });
         });
 
     This module provides (at this time) one procedure
@@ -58,7 +62,7 @@ suite :: ($name: string, $enabled: bool, $verbose: bool, $halt_on_fail: bool, te
     suite.name     = name;
     suite.location = loc;
 
-    #insert_internal tests;
+    #insert,scope() tests;
 
     test_word := pluralize("test", suite.tests.count);
     color_print(".. Group @bold{%} @blue{(% %)}\n", suite.name, suite.tests.count, test_word);

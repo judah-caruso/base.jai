@@ -52,7 +52,7 @@ get_largest_type :: (types: []Type) -> s64 {
 
 #if RUN_INTERNAL_TESTS #run {
     suite("Union", #code {
-        test("primitive types", (t: *Test) {
+        test("primitive types", (t) => {
             u: Union(s64, u8, float64);
 
             set(*u, 35);
@@ -65,7 +65,7 @@ get_largest_type :: (types: []Type) -> s64 {
             expect(t, u.type == u8, "type was expected to be u8, instead was %", u.type);
         });
 
-        test("struct types", (t: *Test) {
+        test("struct types", (t) => {
             Foo :: struct { a: int; };
             Bar :: struct { b: int; };
 
@@ -84,7 +84,7 @@ get_largest_type :: (types: []Type) -> s64 {
             expect(t, b_ok && bar.b == 20, "bar had invalid data: %", bar);
         });
 
-        test("union of unions", (t: *Test) {
+        test("union of unions", (t) => {
             Base :: Union(A, B, C, D);
             A :: struct { a: int; };
             B :: struct { b: int; };

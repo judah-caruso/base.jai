@@ -111,19 +111,7 @@ ct_return_type_of_iterator :: (type: $T, $iterator: Iterator) -> Type {
 
 #if RUN_INTERNAL_TESTS #run {
     suite("Compile-time", #code {
-        test("ct_run_in_bytecode", (t: *Test) {
-            #run ct_run_in_bytecode(() {
-                assert(running_at_compile_time());
-            });
-
-            my_proc :: () {
-                assert(running_at_compile_time());
-            }
-
-            #run ct_run_in_bytecode(my_proc);
-        });
-
-        test("ct_zero_value_of", (t: *Test) {
+        test("ct_zero_value_of", (t) => {
             a: int;
             az :: #insert #run ct_zero_value_of(int);
             expect(t, a == az, "a was % and az was %", a, az);
@@ -153,7 +141,7 @@ ct_return_type_of_iterator :: (type: $T, $iterator: Iterator) -> Type {
             expect(t, g == gz, "g was % and gz was %", g, gz);
         });
 
-        test("ct_non_zero_value_of", (t: *Test) {
+        test("ct_non_zero_value_of", (t) => {
             a: int;
             an :: #insert #run ct_non_zero_value_of(int);
             expect(t, a != an, "a was % and an was %", a, an);

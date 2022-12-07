@@ -79,7 +79,7 @@ is_none :: (maybe: Maybe) -> bool {
 
 #if RUN_INTERNAL_TESTS #run {
     suite("Maybe", #code {
-        test("some/none", (t: *Test) {
+        test("some/none", (t) => {
             a: Maybe(int);
             a = some(10);
 
@@ -90,7 +90,7 @@ is_none :: (maybe: Maybe) -> bool {
             expect(t, v == 10, "expected 'v' to equal 10, instead equaled '%'", v);
         });
 
-        test("returns maybe", (t: *Test) {
+        test("returns maybe", (t) => {
             double_if_even :: (x: $T) -> Maybe(T) {
                 if x % 2 == 0 {
                     return some(x * x);
@@ -103,7 +103,7 @@ is_none :: (maybe: Maybe) -> bool {
             expect(t, double_if_even(3) == .None);
         });
 
-        test("sentinel value", (t: *Test) {
+        test("sentinel value", (t) => {
             Valid_Index :: Maybe(int, -1);
 
             valid_index   :: (value: Valid_Index.T) -> Valid_Index #expand { return some(value, Valid_Index.SENTINEL); }

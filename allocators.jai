@@ -23,7 +23,7 @@ crash_allocator_proc :: (mode: Allocator_Mode, size: s64, old_size: s64, old_mem
 
 #if RUN_INTERNAL_TESTS #run {
    suite("Allocators", #code {
-      test("crash allocator", (t: *Test) {
+      test("crash allocator", (t) => {
          ref := make_crash_allocator();
 
          context.allocator = make_crash_allocator();

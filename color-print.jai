@@ -208,7 +208,7 @@ is_letter :: (chr: u8) -> bool {
 
 #if RUN_INTERNAL_TESTS #run {
    suite("Color Print", #code {
-      test("can be used as logger", (t: *Test) {
+      test("can be used as logger", (t) => {
          context.logger = color_logger;
          expect(t, context.logger == color_logger);
       });

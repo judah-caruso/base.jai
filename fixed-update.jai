@@ -53,7 +53,7 @@ hi_res_time_in_seconds :: inline () -> float64 {
 
 #if RUN_INTERNAL_TESTS #run {
    suite("Fixed Update", #code {
-      test("compiles", (t: *Test) {
+      test("compiles", (t) => {
          fu: Fixed_Update;
          init(*fu);
          do_fixed_update(*fu, #code {});

@@ -10,6 +10,14 @@ Static_Array :: struct(CAPACITY: int, T: Type) {
     ZERO : T = ---; // 'Private' value used when removing
 }
 
+len :: inline (array: Static_Array) -> int {
+    return array.count;
+}
+
+cap :: inline (array: Static_Array) -> int {
+    return array.CAPACITY;
+}
+
 array_add :: inline (array: *Static_Array, element: array.T) {
     ensure_array_has_room(array, 1);
     array.elements[array.count] = element;
@@ -146,6 +154,11 @@ operator [] :: inline (array: Static_Array, index: int) -> array.T {
     return array.elements[index];
 }
 
+operator []= :: inline (array: *Static_Array, index: int, value: array.T) {
+    assert(index >= 0 && index < array.CAPACITY, "Invalid index: % (max: %)", index, array.CAPACITY);
+    array.elements[index] = value;
+}
+
 
 #scope_file
 
@@ -155,7 +168,7 @@ ensure_array_has_room :: (array: *Static_Array, count: int, loc := #caller_locat
 
 #if RUN_INTERNAL_TESTS #run {
     suite("Static Array", #code {
-        test("dynamic api to static", (t: *Test) {
+        test("dynamic api to static", (t) => {
             dynamic: [..]int;
             static:  Static_Array(10, int);
 
@@ -173,7 +186,7 @@ ensure_array_has_room :: (array: *Static_Array, count: int, loc := #caller_locat
             for static expect(t, it == static.ZERO, "%th element wasn't zeroed out: %", it_index, it);
         });
 
-        test("array_to_dynamic", (t: *Test) {
+        test("array_to_dynamic", (t) => {
             static: Static_Array(3, float64);
             for 0..static.CAPACITY - 1 {
                 array_add(*static, 3.14 + it);
@@ -186,7 +199,7 @@ ensure_array_has_room :: (array: *Static_Array, count: int, loc := #caller_locat
             expect(t, static.count != dynamic.count, "arrays had matching count after append: % vs. %", static.count, dynamic.count);
         });
 
-        test("push/pop", (t: *Test) {
+        test("push/pop", (t) => {
             Command :: struct {
                 tag:  Tag;
                 args: [..]Argument;
@@ -244,6 +257,18 @@ ensure_array_has_room :: (array: *Static_Array, count: int, loc := #caller_locat
             }
 
             expect(t, static.count == 0, "array still had count after pop: %", static.count);
+        });
+
+        test("operators", (t) => {
+            arr: Static_Array(100, int);
+            for arr arr[it_index] = it_index * it_index;
+            for arr expect(t, arr[it_index] == it_index * it_index);
+        });
+
+        test("len/cap", (t) => {
+            arr: Static_Array(5, int);
+            expect(t, len(arr) == 0);
+            expect(t, cap(arr) == 5);
         });
     });
 }

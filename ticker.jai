@@ -154,7 +154,7 @@ get_interal :: (event: *Event) -> *Event_Data #expand {
 
 #if RUN_INTERNAL_TESTS #run {
    suite("Ticker", #code {
-      test("updates", (t: *Test) {
+      test("updates", (t) => {
          ticker: Event_Handler;
 
          value := 0;
@@ -190,7 +190,7 @@ get_interal :: (event: *Event) -> *Event_Data #expand {
          expect(t, value == 5, "Expected 'v' to equal '5' after 20 ticks at 10t. Instead was '%'", value);
       });
 
-      test("resets", (t: *Test) {
+      test("resets", (t) => {
          Foo :: struct {
             is_dead: bool;
          }

@@ -68,6 +68,9 @@ base64_encode :: (str: string, $for_url := false, $with_padding := false, alloca
    return encoded, ok;
 }
 
+// @Todo(Judah): There's a bug that I'm not going to
+// fix yet since I haven't used this in a real project yet.
+
 base64_decode :: (data: []u8, allocator := context.allocator) -> []u8, bool {
    if !data.count return .[], false;
 
@@ -153,7 +156,7 @@ ENCODING_URL      :: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345
 ENCODING_STANDARD :: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 #if RUN_INTERNAL_TESTS #run suite("Base64", #code {
-   test("encodes", (t: *Test) {
+   test("encodes", (t) => {
       str :: "Hello, World";
 
       encoded, ok := base64_encode(str);
@@ -165,7 +168,7 @@ ENCODING_STANDARD :: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345
       expect(t, encoded_str == expected_str, "Invalid result from encode! Wanted: '%', received: '%'", expected_str, encoded_str);
    });
 
-   test("decodes", (t: *Test) {
+   test("decodes", (t) => {
       encoded_str :: "SGVsbG8sIFdvcmxk";
 
       decoded_str, ok := base64_decode(encoded_str);
@@ -175,7 +178,7 @@ ENCODING_STANDARD :: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345
       expect(t, decoded_str == expected_str, "Invalid result from decode! Wanted: '%', received: '%'", expected_str, decoded_str);
    });
 
-   test("encode/decode with padding", (t: *Test) {
+   test("encode/decode with padding", (t) => {
       first_decode, f_ok := base64_decode("VkdocGN5QnBjeUJ6YjIxbGRHaHBibWNnYlc5eVpTQmpiMjF3YkdWNExDQnBkQ0J6YUc5MWJHUWdhR0YyWlNCd1lXUmthVzVuUHc9PQ==");
       expect(t, f_ok, "First decode failed!");
 
@@ -190,7 +193,7 @@ ENCODING_STANDARD :: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345
       }
    });
 
-   test("encode/decode basic structure", (t: *Test) {
+   test("encode/decode basic structure", (t) => {
       Foo :: struct {
          first:  u64;
          second: u64;
