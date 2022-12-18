@@ -154,6 +154,11 @@ operator [] :: inline (array: Static_Array, index: int) -> array.T {
     return array.elements[index];
 }
 
+operator *[] :: inline (array: Static_Array, index: int) -> *array.T {
+    assert(index >= 0 && index < array.count, "Invalid index: % (max: %)", index, array.count - 1);
+    return *array.elements[index];
+}
+
 operator []= :: inline (array: *Static_Array, index: int, value: array.T) {
     assert(index >= 0 && index < array.CAPACITY, "Invalid index: % (max: %)", index, array.CAPACITY);
     array.elements[index] = value;
