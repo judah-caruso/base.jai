@@ -1,28 +1,26 @@
 /// Various utilities
 
+/// Better casting
 // @Note(Judah): Because Jai's print_type_to_builder doesn't actually
 // output the real type (just an approximation/verbose version), we
 // can't rely on it to generate the cast expression (hence the ifs)
-/// Better casting
 as :: ($T: Type, expr: Code, $check := true, $truncate := false) -> T #expand {
-    expr_str :: #run -> string {
-        root := compiler_get_nodes(expr);
-
-        builder: String_Builder;
-        print_expression(*builder, root);
-
-        return sprint("#insert expr /* % */;", builder_to_string(*builder));
-    };
+    // expr_str :: #run -> string {
+    //     root := compiler_get_nodes(expr);
+    //     builder: String_Builder;
+    //     print_expression(*builder, root);
+    //     return sprint("#insert expr /* as(%, %) */;", T, builder_to_string(*builder));
+    // };
 
     #if !check {
-        #if truncate then return cast,no_check,trunc(T)(#insert expr_str);
-        else              return cast,no_check(T)(#insert expr_str);
+        #if truncate then return cast,no_check,trunc(T)(#insert expr);
+        else              return cast,no_check(T)(#insert expr);
     }
     else #if truncate {
-        return cast,trunc(T)(#insert expr_str);
+        return cast,trunc(T)(#insert expr);
     }
 
-    return cast(T)(#insert expr_str);
+    return cast(T)(#insert expr);
 }
 
 as_trunc :: ($T: Type, expr: Code) -> T #expand {
@@ -33,7 +31,7 @@ as_unsafe :: ($T: Type, expr: Code) -> T #expand {
     return as(T, expr, check = false);
 }
 
-transmute :: ($T: Type, expr: Code, loc := #caller_location) -> T #expand {
+transmute :: ($T: Type, expr: Code) -> T #expand {
     value := expr;
     return <<as(*T, *value);
 }
@@ -107,11 +105,11 @@ new :: ($T: Type, allocator := context.allocator) -> *T {
     return inline New(T, allocator = allocator);
 }
 
-len :: inline (slice: []$T) -> int { return slice.count; }
-cap :: inline (slice: []$T) -> int { return slice.count; }
+len :: (slice: []$T) -> int #expand { return slice.count; }
+cap :: (slice: []$T) -> int #expand { return slice.count; }
 
-len :: inline (dyn: [..]$T) -> int { return dyn.count;     }
-cap :: inline (dyn: [..]$T) -> int { return dyn.allocated; }
+len :: (dyn: [..]$T) -> int #expand { return dyn.count;     }
+cap :: (dyn: [..]$T) -> int #expand { return dyn.allocated; }
 
 kilobyte :: (i: $T) -> T #expand {
     return 1024 * i;
@@ -283,7 +281,7 @@ rune_width :: (r: rune) -> int {
     return -1;
 }
 
-// @Todo: Remove the 'to_string' call when we update 'consume/peek_rune'
+// @Todo(Judah): We shouldn't need to call 'to_string' just to append a rune
 append :: inline (builder: *String_Builder, r: rune) {
     append(builder, to_string(r));
 }
@@ -329,6 +327,10 @@ consume_array :: (src: *[]$T) -> T, bool {
 
 #if RUN_INTERNAL_TESTS #run {
     suite("Utilities", #code {
+        test("as", (t) => {
+            foo: f64 = 3.14;
+            expect(t, type_of(as(*u64, *foo)) == *u64);
+        });
         test("pluralize", (t) => {
             expect(t, pluralize("foo", 0)  == "foos");
             expect(t, pluralize("foo", 1)  == "foo");

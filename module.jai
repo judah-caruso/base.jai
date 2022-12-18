@@ -3,7 +3,10 @@
 );
 
 /// Custom types
+byte :: #type u8;
 rune :: #type u32;
+sint :: #type s64;
+uint :: #type u64;
 f32  :: #type float32;
 f64  :: #type float64;
 
@@ -122,16 +125,15 @@ c :: struct {
 }
 
 #load "allocators.jai";
+#load "array.jai";
 #load "base64.jai";
 #load "bitset.jai";
 #load "color-print.jai";
 #load "compile-time.jai";
-// #load "docs.jai";
 #load "fixed-update.jai";
 #load "iterators.jai";
 #load "lexer.jai";
 #load "maybe.jai";
-#load "platform.jai";
 #load "static-array.jai";
 #load "testing.jai";
 #load "ticker.jai";
