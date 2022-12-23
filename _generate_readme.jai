@@ -9,9 +9,9 @@
    for files if lib_module(it) array_add(*modules, it);
 
    sorted := quick_sort(modules, (l: string, r: string) -> int {
-      if l[0] > r[0] {
-         return -1;
-      }
+      l_base := path_basename(l);
+      r_base := path_basename(r);
+      if l_base[0] < r_base[0] return -1;
       return 1;
    });
 

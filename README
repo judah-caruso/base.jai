@@ -8,21 +8,21 @@ Base
 
 Modules
 
-   - fixed-update.jai (Locked timestep update loop)
-   - utilities.jai (Helpful utilities)
-   - lexer.jai (General purpose lexing)
-   - union.jai (Tagged unions)
-   - maybe.jai (Rust-like optional type)
-   - base64.jai (Simple base64 encoder/decoder)
    - allocators.jai (Custom allocators)
-   - color-print.jai (Colored console output)
-   - testing.jai (Compile-time testing)
-   - bitset.jai (Simple Odin-like bitset)
-   - compile-time.jai (Compile-time utilities)
    - array.jai (Utilities for dynamic arrays.)
-   - static-array.jai (Fixed-size array that feels like [..]T)
+   - bitset.jai (Simple Odin-like bitset)
+   - base64.jai (Simple base64 encoder/decoder)
+   - color-print.jai (Colored console output)
+   - compile-time.jai (Compile-time utilities)
+   - fixed-update.jai (Locked timestep update loop)
    - iterators.jai (Iterator interface map, filter, collect utilities)
+   - lexer.jai (General purpose lexing)
+   - maybe.jai (Rust-like optional type)
+   - static-array.jai (Fixed-size array that feels like [..]T)
+   - testing.jai (Compile-time testing)
    - ticker.jai (A tick-based event system)
+   - utilities.jai (Helpful utilities)
+   - union.jai (Tagged unions)
 
 
 Notes
