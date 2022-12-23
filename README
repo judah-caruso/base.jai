@@ -1,27 +1,44 @@
-.. Base
-   My personal library for Jai.
+Base
+
+   My personal library for Jai. For the most
+   part, each module can be copy-pasted into
+   your project without having to pull in the
+   entire library.
 
 
-.. Details
-    - Tagged unions (union.jai)
-    - Optional type (maybe.jai)
-    - Automated tests (testing.jai)
-    - Iterators/Array utilities (iterators.jai)
-    - Static array with [..]T API (static-array.jai)
-    - Odin-like bitsets (bitset.jai)
-    - General purpose lexer (lexer.jai)
-    - Fixed update loop (fixed-update.jai)
-    - Tick-based event system (ticker.jai)
-    - Various utilities (utilities.jai)
+Modules
 
-    Internal tests suite can be ran using 'jai _run_all_tests.jai'
-
-
-.. Installation
-    Copy files as needed or clone the entire repo and import:
-        - #load "base/module.jai";
-        - #import,file "base/module.jai";
+   - fixed-update.jai (Locked timestep update loop)
+   - utilities.jai (Helpful utilities)
+   - lexer.jai (General purpose lexing)
+   - union.jai (Tagged unions)
+   - maybe.jai (Rust-like optional type)
+   - base64.jai (Simple base64 encoder/decoder)
+   - allocators.jai (Custom allocators)
+   - color-print.jai (Colored console output)
+   - testing.jai (Compile-time testing)
+   - bitset.jai (Simple Odin-like bitset)
+   - compile-time.jai (Compile-time utilities)
+   - array.jai (Utilities for dynamic arrays.)
+   - static-array.jai (Fixed-size array that feels like [..]T)
+   - iterators.jai (Iterator interface map, filter, collect utilities)
+   - ticker.jai (A tick-based event system)
 
 
-.. License - Unlicense (Public Domain)
-   See LICENSE for full notice
+Notes
+
+   - To run the internal testing suite: 'jai _run_all_tests.jai'
+   - To verify modules work standalone: 'jai _ensure_standalone.jai'
+   - To generate this README file: 'jai _generate_readme.jai'
+
+
+Installation
+
+   Copy files as needed or clone the entire repo:
+      #import,file "[name].jai";      // Use a single module
+      #import,file "base/module.jai"; // Use the entire library
+
+
+License - Unlicense (Public Domain)
+    See LICENSE for full notice
+

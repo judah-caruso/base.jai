@@ -1,5 +1,4 @@
-/// Fixed update is a configurable loop that'll
-/// run at a consistent locked timestep
+/// Locked timestep update loop
 
 /*
    Usage:
@@ -49,17 +48,7 @@ hi_res_time_in_seconds :: inline () -> float64 {
 }
 
 
-#scope_file;
-
-#if RUN_INTERNAL_TESTS #run {
-   suite("Fixed Update", #code {
-      test("compiles", (t) => {
-         fu: Fixed_Update;
-         init(*fu);
-         do_fixed_update(*fu, #code {});
-      });
-   });
-}
+#scope_file
 
 #import "Basic";
 

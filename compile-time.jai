@@ -1,8 +1,7 @@
-/// Various compile-time utilities
+/// Compile-time utilities
 
 /// Runs 'entrypoint' at compile-time without generating an executable.
-ct_run_in_bytecode :: (entrypoint: $PROC)
-#expand
+ct_run_in_bytecode :: (entrypoint: $PROC) #expand
 #modify {
     info := cast(*Type_Info)PROC;
     if info.type != .PROCEDURE return false;
@@ -13,7 +12,7 @@ ct_run_in_bytecode :: (entrypoint: $PROC)
    entrypoint();
 }
 
-/// Compiles the file this is #ran in.
+/// Compiles the file this is #run in.
 ct_compile_to_binary :: (binary_name: string, use_bin_dir := true) #expand {
     options: Build_Options_During_Compile;
     options.do_output              = true;
@@ -100,70 +99,15 @@ ct_non_zero_value_of :: ($type: $T) -> string {
 }
 
 /// Returns the type 'iterator' returns when called over 'T'
-ct_return_type_of_iterator :: (type: $T, $iterator: Iterator) -> Type {
-    temp :: #run ct_non_zero_value_of(T);
-    for :iterator temp return type_of(it);
-    return void;
-}
+// ct_return_type_of_iterator :: (type: $T, $iterator: Iterator) -> Type {
+//     temp :: #run ct_non_zero_value_of(T);
+//     for :iterator temp return type_of(it);
+//     return void;
+// }
 
 
 #scope_file
 
-#if RUN_INTERNAL_TESTS #run {
-    suite("Compile-time", #code {
-        test("ct_zero_value_of", (t) => {
-            a: int;
-            az :: #insert #run ct_zero_value_of(int);
-            expect(t, a == az, "a was % and az was %", a, az);
-
-            b: float32;
-            bz :: #insert #run ct_zero_value_of(float32);
-            expect(t, b == bz, "b was % and bz was %", b, bz);
-
-            c: float64;
-            cz :: #insert #run ct_zero_value_of(float64);
-            expect(t, c == cz, "c was % and cz was %", c, cz);
-
-            d: bool;
-            dz :: #insert #run ct_zero_value_of(bool);
-            expect(t, d == dz, "d was % and dz was %", d, dz);
-
-            e: string;
-            ez :: #insert #run ct_zero_value_of(string);
-            expect(t, e == ez, "e was % and ez was %", e, ez);
-
-            f: *void;
-            fz :: #insert #run ct_zero_value_of(*void);
-            expect(t, f == fz, "f was % and fz was %", f, fz);
-
-            g: ();
-            gz :: #insert #run ct_zero_value_of(type_of(g));
-            expect(t, g == gz, "g was % and gz was %", g, gz);
-        });
-
-        test("ct_non_zero_value_of", (t) => {
-            a: int;
-            an :: #insert #run ct_non_zero_value_of(int);
-            expect(t, a != an, "a was % and an was %", a, an);
-
-            b: float32;
-            bn :: #insert #run ct_non_zero_value_of(float32);
-            expect(t, b != bn, "b was % and bn was %", b, bn);
-
-            c: float64;
-            cn :: #insert #run ct_non_zero_value_of(float64);
-            expect(t, c != cn, "c was % and cn was %", c, cn);
-
-            d: bool;
-            dn :: #insert #run ct_non_zero_value_of(bool);
-            expect(t, d != dn, "d was % and dn was %", d, dn);
-
-            e: string;
-            en :: #insert #run ct_non_zero_value_of(string);
-            expect(t, e != en, "e was % and en was %", e, en);
-        });
-    });
-}
-
 #import "File";
+#import "Basic";
 #import "Compiler";

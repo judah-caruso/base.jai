@@ -198,19 +198,11 @@ Text_Style :: enum u8 {
    Strike    :: 9;
 }
 
-#scope_file;
+#scope_file
 
 is_letter :: (chr: u8) -> bool {
    return chr >= #char "a" && chr <= #char "z" ||
           chr >= #char "A" && chr <= #char "Z";
 }
 
-
-#if RUN_INTERNAL_TESTS #run {
-   suite("Color Print", #code {
-      test("can be used as logger", (t) => {
-         context.logger = color_logger;
-         expect(t, context.logger == color_logger);
-      });
-   });
-}
+#import "Basic";

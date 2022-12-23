@@ -1,3 +1,128 @@
+/// Helpful utilities
+
+/// Custom types
+byte :: #type u8;
+rune :: #type u32;
+sint :: #type s64;
+uint :: #type u64;
+f32  :: #type float32;
+f64  :: #type float64;
+
+/// C binding types
+/// The names of these types are meant to mirror
+/// how they're written in C. That way it cuts
+/// down on the number of changes needed when
+/// binding code. They've been placed in a
+/// struct to namespace the types.
+C :: struct {
+   // @Todo: Should I even handle 32bit since it's not a compilation target?
+   #if OS == .WINDOWS {
+      char                   :: #type u8;
+      short                  :: #type s16;
+      int                    :: #type s32;
+      long                   :: #type s32;
+      float                  :: #type float32;
+      double                 :: #type float64;
+      short_int              :: #type s16;
+      long_long              :: #type s64;
+      long_long_int          :: #type s64;
+      unsigned_char          :: #type u8;
+      unsigned_short         :: #type u16;
+      unsigned_short_int     :: #type u16;
+      unsigned               :: #type u32;
+      unsigned_int           :: #type u32;
+      unsigned_long          :: #type u32;
+      unsigned_long_long     :: #type u64;
+      unsigned_long_long_int :: #type u64;
+      signed_char            :: #type s8;
+      signed_short           :: #type s16;
+      signed_short_int       :: #type s16;
+      signed                 :: #type s32;
+      signed_int             :: #type s32;
+      signed_long            :: #type s32;
+      signed_long_long       :: #type s64;
+      signed_long_long_int   :: #type s64;
+      size_t                 :: #type u64;
+      intptr_t               :: #type s64;
+      uintptr_t              :: #type u64;
+      ptrdiff_t              :: #type u64;
+      wchar_t                :: #type u16;
+      long_double            :: #type float64;
+      WORD                   :: #type u16;
+      DWORD                  :: #type u32;
+   }
+   else #if OS == .LINUX {
+      char                   :: #type u8;
+      short                  :: #type s16;
+      int                    :: #type s32;
+      long                   :: #type s64;
+      float                  :: #type float32;
+      double                 :: #type float64;
+      short_int              :: #type s16;
+      long_long              :: #type s64;
+      long_long_int          :: #type s64;
+      unsigned_char          :: #type u8;
+      unsigned_short         :: #type u16;
+      unsigned_short_int     :: #type u16;
+      unsigned               :: #type u32;
+      unsigned_int           :: #type u32;
+      unsigned_long          :: #type u64;
+      unsigned_long_long     :: #type u64;
+      unsigned_long_long_int :: #type u64;
+      signed_char            :: #type s8;
+      signed_short           :: #type s16;
+      signed_short_int       :: #type s16;
+      signed                 :: #type s32;
+      signed_int             :: #type s32;
+      signed_long            :: #type s64;
+      signed_long_long       :: #type s64;
+      signed_long_long_int   :: #type s64;
+      size_t                 :: #type u64;
+      intptr_t               :: #type s64;
+      uintptr_t              :: #type u64;
+      ptrdiff_t              :: #type u64;
+      wchar_t                :: #type u32;
+      ssize_t                :: #type s64;
+      long_double            :: #type float64;
+   }
+   else #if OS == .MACOS {
+      char                   :: #type u8;
+      short                  :: #type s16;
+      int                    :: #type s32;
+      long                   :: #type s64;
+      float                  :: #type float32;
+      double                 :: #type float64;
+      short_int              :: #type s16;
+      long_long              :: #type s64;
+      long_long_int          :: #type s64;
+      unsigned_char          :: #type u8;
+      unsigned_short         :: #type u16;
+      unsigned_short_int     :: #type u16;
+      unsigned               :: #type u32;
+      unsigned_int           :: #type u32;
+      unsigned_long          :: #type u64;
+      unsigned_long_long     :: #type u64;
+      unsigned_long_long_int :: #type u64;
+      signed_char            :: #type s8;
+      signed_short           :: #type s16;
+      signed_short_int       :: #type s16;
+      signed                 :: #type s32;
+      signed_int             :: #type s32;
+      signed_long            :: #type s64;
+      signed_long_long       :: #type s64;
+      signed_long_long_int   :: #type s64;
+      size_t                 :: #type u64;
+      intptr_t               :: #type s64;
+      uintptr_t              :: #type u64;
+      ptrdiff_t              :: #type u64;
+      wchar_t                :: #type u32;
+   }
+   else {
+      #run compiler_report(sprint("Unknown platform '%'! This may not compile...", OS), mode = .WARNING);
+   }
+}
+
+
 /// Various utilities
 
 /// Better casting
@@ -36,12 +161,9 @@ transmute :: ($T: Type, expr: Code) -> T #expand {
     return <<as(*T, *value);
 }
 
-make :: make_t;
-make :: make_slice;
-make :: make_dynamic_array;
-
+/// Make a non-array type
 // @Note(Judah): Not sure why making custom_init a partial bake works, bug?
-make_t :: ($T: Type, $$custom_init: (*T) = null) -> T #modify {
+make :: ($T: Type, $$custom_init: (*T) = null) -> T #modify {
     info := cast(*Type_Info)T;
     if info.type == .ARRAY {
         compiler_report(sprint("make_t is not valid on %", T));
@@ -60,7 +182,8 @@ make_t :: ($T: Type, $$custom_init: (*T) = null) -> T #modify {
     return val;
 }
 
-make_slice :: ($T: Type, $count := 0, allocator := context.allocator) -> []T #modify {
+/// Make a slice type
+make :: ($T: Type, $count := 0, allocator := context.allocator) -> []T #modify {
     info := cast(*Type_Info)T;
     if info.type != .ARRAY {
         compiler_report(sprint("make_slice expects % to be []T", T));
@@ -80,10 +203,11 @@ make_slice :: ($T: Type, $count := 0, allocator := context.allocator) -> []T #mo
     return arr;
 }
 
-make_dynamic_array :: ($T: Type, $count := 0, allocator := context.allocator) -> T #modify {
+/// Make a dynamic array type
+make :: ($T: Type, $count := 0, allocator := context.allocator) -> T #modify {
     info := cast(*Type_Info)T;
     if info.type != .ARRAY {
-        compiler_report(sprint("make_dynamnic_array expects % to be [..]T", T));
+        compiler_report(sprint("make_dynamic_array expects % to be [..]T", T));
         return false;
     }
 
@@ -325,335 +449,7 @@ consume_array :: (src: *[]$T) -> T, bool {
 
 #scope_file
 
-#if RUN_INTERNAL_TESTS #run {
-    suite("Utilities", #code {
-        test("as", (t) => {
-            foo: f64 = 3.14;
-            expect(t, type_of(as(*u64, *foo)) == *u64);
-        });
-        test("pluralize", (t) => {
-            expect(t, pluralize("foo", 0)  == "foos");
-            expect(t, pluralize("foo", 1)  == "foo");
-            expect(t, pluralize("bars", 0) == "bars");
-            expect(t, pluralize("bars", 1) == "bars");
-        });
-
-        test("name of procedure", (t) => {
-            foo :: () -> string { return get_name_of_current_procedure(); }
-            bar_baz :: () -> string { return get_name_of_current_procedure(); }
-
-            expect(t, foo() == "foo");
-            expect(t, bar_baz() == "bar_baz");
-
-            no_name := get_name_of_current_procedure();
-            expect(t, no_name == "proc", "unnamed procedure had name '%'", no_name);
-        });
-
-        test("verify block", (t) => {
-            #import "Random";
-
-            random_seed(cast(u64)to_nanoseconds(current_time_monotonic()));
-
-            for 0..100 {
-                value    := cast(int)random_get_within_range(0, 100);
-                is_valid := false;
-
-                verify(#code {
-                    if value >= 50    break;
-                    if value % 2 != 0 break;
-                    is_valid = true;
-                });
-
-                if is_valid {
-                    expect(t, value % 2 == 0, "valid value wasn't in range: %", value);
-                }
-                else {
-                    expect(t, value >= 50 || value % 2 != 0, "invalid value was in valid range: %", value);
-                }
-            }
-        });
-
-        test("unicode peek/consume", (t) => {
-            str := "\n\r안녕하세요\n이것은 시험이다~\n";
-            copy := str;
-
-            i := 0;
-            while copy.count {
-                original, width, status := character_utf8_to_utf32(str.data, str.count);
-                expect(t, status == .CONVERSION_OK);
-
-                r, ok := peek_rune(copy);
-                expect(t, ok, "rune peek (at %) returned nothing!", i);
-
-                expect(t, r == original, "peeked '%' (at index %) was expected to be '%'", r, i, original);
-
-                r, ok = consume_rune(*copy);
-                expect(t, ok, "unable to consume value %!", i);
-
-                expect(t, r == original, "consumed '%' (at index %) was expected to be '%'", r, i, original);
-
-                i += 1;
-                str.data  += width;
-                str.count -= width;
-            }
-        });
-
-        test("ascii peek/consume", (t) => {
-            str := "\n\rHello, World!\nThis is a test\n";
-            copy := str;
-
-            i := 0;
-            while copy.count {
-                chr, ok := peek_char(copy);
-                expect(t, ok, "character peek (at %) returned nothing!", i);
-
-                expect(t, chr == str.data[i], "peeked '%' (at index %) was expected to be '%'", chr, i, str.data[i]);
-
-                chr, ok = consume_char(*copy);
-                expect(t, ok, "unable to consume value %!", i);
-
-                expect(t, chr == str.data[i], "consumed '%' (at index %) was expected to be '%'", chr, i, str.data[i]);
-                i += 1;
-            }
-        });
-
-        test("array peek/consume", (t) => {
-            str_values := string.[ "1", "2", "3", "4", "5" ];
-            str_copies : []string = str_values;
-
-            i := 0;
-            while str_copies.count {
-                str, ok := peek_array(str_copies);
-                expect(t, ok, "peek on array (at %) returned nothing!", i);
-
-                expect(t, str == str_values[i], "peeked '%' (at index %) was expected to be '%'", str, i, str_values[i]);
-
-                str, ok = consume_array(*str_copies);
-                expect(t, ok, "unable to consume value %!", i);
-
-                expect(t, str == str_values[i], "consumed '%' (at index %) was expected to be '%'", str, i, str_values[i]);
-
-                i += 1;
-            }
-
-            Foo :: struct {
-                value: int;
-            }
-
-            custom_values: [..]Foo;
-            array_add(*custom_values, .{ 1 });
-            array_add(*custom_values, .{ 2 });
-            array_add(*custom_values, .{ 3 });
-            array_add(*custom_values, .{ 4 });
-            array_add(*custom_values, .{ 5 });
-
-            custom_copies: []Foo = custom_values;
-
-            i = 0;
-            while i < custom_copies.count {
-                foo, ok := peek_array(custom_copies);
-                expect(t, ok, "peek on array (at %) returned nothing!", i);
-
-                expect(t, foo.value == custom_values[i].value, "peeked '%' (at index %) was expected to be '%'", foo.value, i, custom_values[i].value);
-
-                foo, ok = consume_array(*custom_copies);
-                expect(t, ok, "unable to consume value %!", i);
-
-                expect(t, foo.value == custom_values[i].value, "consumed '%' (at index %) was expected to be '%'", foo.value, i, custom_values[i].value);
-
-                i += 1;
-            }
-        });
-
-        test("string view", (t) => {
-            str := "안녕하세요\n이것은 시험이다~\n";
-            copy := str;
-
-            view_a := begin_view(copy);
-            while copy.count {
-                chr, ok, width := peek_rune(copy);
-                if !ok || chr == #char "\n" break;
-
-                advance_view(*view_a, width);
-                consume_rune(*copy);
-            }
-
-            output_a := end_view(view_a);
-            expect(t, view_a   == "안녕하세요"); // Verify operator overload works as expected
-            expect(t, output_a == "안녕하세요");
-
-            consume_rune(*copy); // Skip '\n'
-
-            view_b := begin_view(copy);
-            while copy.count {
-                chr, ok, width := peek_rune(copy);
-                if !ok || chr == #char " " break;
-
-                advance_view(*view_b, width);
-                consume_rune(*copy);
-            }
-
-            output_b := end_view(view_b);
-            expect(t, view_b   == "이것은");
-            expect(t, output_b == "이것은");
-
-            expect(t, view_a   != view_b);
-            expect(t, output_a != output_b);
-        });
-
-        test("rune width", (t) => {
-            tests := (struct { value: rune; expected: int; }).[
-                .{ 0, 1 },
-                .{ #char "a", 1 },
-                .{ #char "é", 2 },
-                .{ #char "ㅋ", 3 },
-                .{ 0x10FFFF, 4 },
-                .{ 0xD800, -1 },
-                .{ 0xDFFF, -1 },
-                .{ 0x10FFFF + 1, -1 },
-            ];
-
-            for tests {
-                width := rune_width(it.value);
-                expect(t, width == it.expected,
-                    "rune '%' should have a width of %, instead was %",
-                    to_string(it.value),
-                    it.expected,
-                    width,
-                );
-            }
-        });
-
-        test("rune append", (t) => {
-            str := "안녕하세요 :)";
-
-            builder: String_Builder;
-
-            copy := str;
-            while copy.count {
-                r, ok := consume_rune(*copy);
-                if !ok break;
-                append(*builder, r);
-            }
-
-            out := to_string(*builder);
-            expect(t, out == str, "expected '%' to equal '%'", out, str);
-        });
-
-        test("make_t", (t) => {
-            A :: struct {
-                x: int;
-                y: []int;
-                z: struct {
-                    a: f32;
-                    b: f64;
-                };
-            }
-
-            init_a :: (a: *A)  {
-                a.x   = 100;
-                a.z.a = 3.14;
-            }
-
-            a1 := make(A);
-            expect(t, a1.x       == 0);
-            expect(t, a1.y.count == 0);
-            expect(t, a1.z.a     == 0);
-            expect(t, a1.z.b     == 0);
-
-            a2 := make(A, init_a);
-            expect(t, a2.x       == 100);
-            expect(t, a2.y.count == 0);
-            expect(t, a2.z.a     == 3.14);
-            expect(t, a2.z.b     == 0);
-
-            a3 := make(A, (a: *A) {
-                a.z.b = 3.14;
-            });
-
-            expect(t, a3.x       == 0);
-            expect(t, a3.y.count == 0);
-            expect(t, a3.z.a     == 0);
-            expect(t, a3.z.b     == 3.14);
-
-            // Make sure anonymous types work
-            foo := make(struct{
-                bar := "hello";
-                baz: f32;
-                boz: [..]struct {
-                    biz := "goodbyte";
-                };
-            });
-
-            expect(t, foo.bar == "hello");
-            expect(t, foo.baz == 0);
-            expect(t, foo.boz.count == 0);
-
-            array_add(*foo.boz, .{});
-            expect(t, foo.boz[0].biz == "goodbyte");
-
-            bar := make(struct {
-                total:  int;
-                values: [..]string;
-            }, (b) => {
-                array_add(*b.values, "hello");
-                array_add(*b.values, "world");
-                b.total = 2;
-            });
-
-            expect(t, bar.values.count == bar.total);
-            expect(t, bar.values[0] == "hello");
-            expect(t, bar.values[1] == "world");
-
-            // Make sure primitive types work
-            x := make(int);
-            expect(t, x == 0);
-
-            // Make sure lambdas work
-            y := make(f32, (f) => { <<f = 0.5; });
-            expect(t, y == 0.5);
-        });
-
-        test("make_slice", (t) => {
-            arr1 := make([]int, 10);
-            expect(t, arr1.data  != null);
-            expect(t, arr1.count == 10);
-
-            arr1[arr1.count - 1] = 500;
-            arr1[arr1.count - 2] = 400;
-            expect(t, arr1[arr1.count - 1] == 500);
-            expect(t, arr1[arr1.count - 2] == 400);
-        });
-
-        test("make_dynamic_array", (t) => {
-            arr1 := make([..]int, 10);
-            expect(t, arr1.data      != null);
-            expect(t, arr1.count     == 0);
-            expect(t, arr1.allocated == 10);
-
-            array_add(*arr1, 5, 6);
-            expect(t, arr1[0]        == 5);
-            expect(t, arr1[1]        == 6);
-            expect(t, arr1.count     == 2);
-            expect(t, arr1.allocated == 10);
-        });
-
-        test("len/cap", (t) => {
-            slice: []int;
-            expect(t, len(slice) == 0);
-            expect(t, cap(slice) == 0);
-
-            array: [5]int;
-            expect(t, len(array) == 5);
-            expect(t, cap(array) == 5);
-
-            dyn: [..]int;
-            expect(t, len(dyn) == 0);
-            expect(t, cap(dyn) == 0);
-
-            array_add(*dyn, 1);
-            expect(t, len(dyn) == 1);
-            expect(t, cap(dyn) % 2 == 0);
-        });
-    });
-}
+#import "Basic";
+#import "String";
+#import "Unicode";
+#import "Compiler";

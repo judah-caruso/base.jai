@@ -44,7 +44,7 @@
    use formatFloat.
 */
 
-Tick         :: #type f64;
+Tick         :: #type float64;
 Event_Proc   :: #type (current_tick: Tick, data: *void) -> (remove_after_fire: bool);
 Cleanup_Proc :: #type (ending_tick: Tick,  data: *void);
 
@@ -139,7 +139,7 @@ round :: inline (tick: Tick) -> Tick {
 }
 
 
-#scope_file;
+#scope_file
 
 Event_Data :: struct {
    event_proc: Event_Proc;
@@ -150,81 +150,6 @@ Event_Data :: struct {
 
 get_interal :: (event: *Event) -> *Event_Data #expand {
    return cast(*Event_Data)(cast(u64)event - #run (size_of(Event_Data) - size_of(Event)));
-}
-
-#if RUN_INTERNAL_TESTS #run {
-   suite("Ticker", #code {
-      test("updates", (t) => {
-         ticker: Event_Handler;
-
-         value := 0;
-         test_event := register_event(*ticker, 1, (tick: Tick, data: *void) -> bool {
-            v := cast(*int)data;
-            <<v += 1;
-            return false;
-         }, *value);
-
-         do_event_tick(*ticker);
-         do_event_tick(*ticker);
-
-         expect(t, value == 2, "Expected 'v' to equal '2' at 1t. Instead was '%'", value);
-
-         set_tickrate(test_event, 2);
-         expect(t, test_event.tick_rate == 2, "Expected tick_rate to be 2 after 'set_tickrate'. Instead was '%'", test_event.tick_rate);
-         expect(t, !test_event.last_tick && !test_event.cleaned, "test_event had invalid data after 'set_tickrate'");
-
-         ticker.tick = 0; // Needs to reset for testing purposes
-
-         do_event_tick(*ticker);
-         do_event_tick(*ticker);
-
-         expect(t, value == 3, "Expected 'v' to equal '3' at 2t. Instead was '%'", value);
-
-         ticker.tick = 0;
-         set_tickrate(test_event, 10);
-
-         for 1..20 {
-            do_event_tick(*ticker);
-         }
-
-         expect(t, value == 5, "Expected 'v' to equal '5' after 20 ticks at 10t. Instead was '%'", value);
-      });
-
-      test("resets", (t) => {
-         Foo :: struct {
-            is_dead: bool;
-         }
-
-         ticker: Event_Handler;
-         thing_to_be_cleaned: Foo;
-
-         dead_tick :: (tick, data) => true;
-         test_event := register_event(*ticker, 1, dead_tick, *thing_to_be_cleaned, (tick: Tick, data: *void) {
-            foo := cast(*Foo)data;
-            foo.is_dead = true;
-         });
-
-         do_event_tick(*ticker);
-
-         expect(t, test_event.cleaned, "test_event wasn't cleaned after first tick!");
-         expect(t, thing_to_be_cleaned.is_dead, "expected 'is_dead' to be true after clean!");
-
-         ticker.tick = 0;
-
-         new_thing: Foo;
-         reset_event(test_event, *new_thing);
-
-         set_tickrate(test_event, 2);
-
-         do_event_tick(*ticker);
-
-         expect(t, !new_thing.is_dead, "'is_dead' shouldn't be true until 2 ticks have passed!");
-
-         do_event_tick(*ticker);
-
-         expect(t, new_thing.is_dead, "expected 'is_dead' to be true after 2 ticks!");
-      });
-   });
 }
 
 libc_trunc :: (value: float32) -> float32 #foreign libc_math "truncf";

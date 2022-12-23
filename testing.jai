@@ -243,3 +243,10 @@ within_test :: (test: *Test, loc := #caller_location) -> bool #expand {
 
     return test.suite.current.status != .Fail;
 }
+
+#import,file "color-print.jai";
+#import,file "utilities.jai";
+
+#import "Basic";
+#import "Program_Print";
+#import "Compiler";

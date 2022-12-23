@@ -69,7 +69,7 @@ base64_encode :: (str: string, $for_url := false, $with_padding := false, alloca
 }
 
 // @Todo(Judah): There's a bug that I'm not going to
-// fix yet since I haven't used this in a real project yet.
+// fix since I haven't used this in a real project yet.
 
 base64_decode :: (data: []u8, allocator := context.allocator) -> []u8, bool {
    if !data.count return .[], false;
@@ -141,10 +141,13 @@ base64_decode :: inline (str: string, allocator := context.allocator) -> string,
    data.count = str.count;
 
    decoded, ok := base64_decode(data, allocator);
-   return to_string(decoded), ok;
+   dec: string = ---;
+   dec.data  = decoded.data;
+   dec.count = decoded.count;
+   return dec, ok;
 }
 
-#scope_file;
+#scope_file
 
 encoded_length :: (count: int, with_padding := false) -> int {
    if with_padding then return (count + 2) / 3 * 4;
@@ -155,88 +158,4 @@ PADDING_VALUE     :: #char "=";
 ENCODING_URL      :: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 ENCODING_STANDARD :: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-#if RUN_INTERNAL_TESTS #run suite("Base64", #code {
-   test("encodes", (t) => {
-      str :: "Hello, World";
-
-      encoded, ok := base64_encode(str);
-      expect(t, ok, "'%' did not properly encode!", str);
-
-      encoded_str  := to_string(encoded);
-      expected_str :: "SGVsbG8sIFdvcmxk";
-
-      expect(t, encoded_str == expected_str, "Invalid result from encode! Wanted: '%', received: '%'", expected_str, encoded_str);
-   });
-
-   test("decodes", (t) => {
-      encoded_str :: "SGVsbG8sIFdvcmxk";
-
-      decoded_str, ok := base64_decode(encoded_str);
-      expect(t, ok, "'%' did not properly decode!", encoded_str);
-
-      expected_str :: "Hello, World";
-      expect(t, decoded_str == expected_str, "Invalid result from decode! Wanted: '%', received: '%'", expected_str, decoded_str);
-   });
-
-   test("encode/decode with padding", (t) => {
-      first_decode, f_ok := base64_decode("VkdocGN5QnBjeUJ6YjIxbGRHaHBibWNnYlc5eVpTQmpiMjF3YkdWNExDQnBkQ0J6YUc5MWJHUWdhR0YyWlNCd1lXUmthVzVuUHc9PQ==");
-      expect(t, f_ok, "First decode failed!");
-
-      re_encode, r_ok := base64_encode(first_decode, with_padding = true);
-      expect(t, r_ok, "Re-encode failed!");
-
-      second_decode, s_ok := base64_decode(re_encode);
-      expect(t, s_ok, "Second decode failed!");
-
-      for 0..first_decode.count - 1 {
-         expect(t, first_decode[it] == second_decode[it], "Decoded byte '%' did not match expected output", it);
-      }
-   });
-
-   test("encode/decode basic structure", (t) => {
-      Foo :: struct {
-         first:  u64;
-         second: u64;
-         third:  u64;
-         forth:  u64;
-      }
-
-      foo: Foo;
-      foo.first  = 123;
-      foo.second = 456;
-      foo.third  = 789;
-      foo.forth  = 100;
-
-      enc_builder: String_Builder;
-      print_to_builder(*enc_builder, "%,%,%,%", foo.first, foo.second, foo.third, foo.forth);
-
-      encoded, e_ok := base64_encode(to_string(*enc_builder));
-      expect(t, e_ok, "Encode of structure failed!");
-
-      decoded, d_ok := base64_decode(encoded);
-      expect(t, d_ok, "Decode of encoded structure failed!");
-
-      parts := split(to_string(decoded), ",");
-      expect(t, parts.count == 4, "Invalid number of parts after decode: %", parts.count);
-
-      bar: Foo = ---;
-
-      {
-         ptr  := cast(*u8)*bar;
-         info := <<cast(*Type_Info_Struct)type_info(Foo);
-
-         for info.members {
-            value, ok := parse_int(*parts[it_index], u64);
-            expect(t, ok, "Integer parse of value % ('%') failed!", it_index, parts[it_index]);
-
-            offset := cast(*u64)(ptr + it.offset_in_bytes);
-            <<offset = value;
-         }
-      }
-
-      expect(t, foo.first  == bar.first,  "Foo.first (%, %) didn't match between encoding/decoding!", foo.first, bar.first);
-      expect(t, foo.second == bar.second, "Foo.second (%, %) didn't match between encoding/decoding!", foo.second, bar.second);
-      expect(t, foo.third  == bar.third,  "Foo.third (%, %) didn't match between encoding/decoding!", foo.third, bar.third);
-      expect(t, foo.forth  == bar.forth,  "Foo.forth (%, %) didn't match between encoding/decoding!", foo.forth, bar.forth);
-   });
-});
+#import "Basic";

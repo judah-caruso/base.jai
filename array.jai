@@ -1,11 +1,13 @@
+/// Utilities for dynamic arrays.
+
 append        :: array_add;
 append_unique :: array_add_if_unique;
 
-insert :: (a: *[..]$T, index: sint, value: T) #expand {
+insert :: (a: *[..]$T, index: s64, value: T) #expand {
    array_insert_at(a, value, index);
 }
 
-insert :: (a: *[..]$T, index: sint) -> *T #must #expand {
+insert :: (a: *[..]$T, index: s64) -> *T #must #expand {
    zero: T = ---;
    array_insert_at(a, zero, index);
    return *a.data[index];
@@ -16,7 +18,7 @@ Removal_Kind :: enum {
    Unordered;
 }
 
-remove_by_index :: (a: *[..]$T, index: sint, $kind := Removal_Kind.Ordered) {
+remove_by_index :: (a: *[..]$T, index: s64, $kind := Removal_Kind.Ordered) {
    #if kind == .Ordered {
       array_ordered_remove_by_index(a, index);
    } else {
@@ -41,81 +43,4 @@ remove_by_pointer :: (a: *[..]$T, ptr: *T, $kind := Removal_Kind.Ordered) {
 
 #scope_file
 
-#if RUN_INTERNAL_TESTS #run {
-   suite("Array", #code {
-      test("append/append_unique", (t) => {
-         foo: [..]sint;
-         append(*foo, 10, 20, 30);
-         expect(t, len(foo) == 3);
-
-         x := append(*foo);
-         <<x = 50;
-
-         expect(t, len(foo) == 4);
-         expect(t, foo[len(foo) - 1] == <<x);
-
-         append_unique(*foo, 10);
-         expect(t, len(foo) == 4);
-      });
-
-      test("insert", (t) => {
-         foo: [..]sint;
-         insert(*foo, 0, 100);
-         insert(*foo, 0, 200);
-         insert(*foo, 1, 300);
-
-         expect(t, len(foo) == 3);
-         expect(t, foo[0] == 200);
-         expect(t, foo[1] == 300);
-         expect(t, foo[2] == 100);
-      });
-
-      test("remove_by_index", (t) => {
-         foo: [..]sint;
-         append(*foo, 1, 2, 3, 4);
-         items := len(foo);
-
-         remove_by_index(*foo, 1);
-         expect(t, len(foo) == items - 1);
-
-         expect(t, foo[0] == 1);
-         expect(t, foo[1] == 3);
-         expect(t, foo[2] == 4);
-      });
-
-      test("remove_by_value", (t) => {
-         foo: [..]sint;
-         append(*foo, 1, 2, 3, 4, 5, 5, 6);
-
-         has :: (a: [..]$T, v: T) -> bool {
-            for a if it == v return true;
-            return false;
-         }
-
-         remove_by_value(*foo, 5);
-         expect(t, has(foo, 5));
-
-         remove_by_value(*foo, 5);
-         expect(t, !has(foo, 5));
-      });
-
-      test("remove_by_pointer", (t) => {
-         foo: [..]sint;
-         append(*foo, 1, 1, 1, 1);
-
-         x := insert(*foo, 2);
-         <<x = 500;
-
-         expect(t, len(foo) == 5);
-         expect(t, foo[2] == 500);
-
-         remove_by_pointer(*foo, x, .Unordered);
-         expect(t, len(foo) == 4);
-
-         sum := 0;
-         for foo sum += it;
-
-         expect(t, sum == len(foo), "sum was %, len was %", sum, len(foo));
-      });
-   });
- }
+#import "Basic";
