@@ -630,16 +630,10 @@
                    Sub;
                }
 
-               Argument :: struct {
-                   kind:  Kind;
-                   value: Union(u8, s64, float64);
-
-                   Kind :: enum {
-                       Stack;
-                       Register;
-                       Literal;
-                   }
-               }
+               Argument :: Union(struct {
+                   Register: u8;
+                   Literal:  float32;
+               });
            }
 
            static: Static_Array(16, Command);
@@ -649,12 +643,10 @@
                cmd.tag = .Move;
 
                loc := array_add(*cmd.args);
-               loc.kind = .Register;
-               set(*loc.value, cast(u8)1);
+               set(loc, .Register, cast(u8)1);
 
                val := array_add(*cmd.args);
-               val.kind = .Literal;
-               set(*val.value, 100);
+               set(val, .Literal, 100.0);
            }
 
            {
@@ -662,12 +654,10 @@
                cmd.tag = .Add;
 
                loc := array_add(*cmd.args);
-               loc.kind = .Register;
-               set(*loc.value, cast(u8)1);
+               set(loc, .Register, cast(u8)1);
 
                val := array_add(*cmd.args);
-               val.kind = .Literal;
-               set(*val.value, 1);
+               set(val, .Literal, 1.0);
            }
 
            while static.count {
@@ -766,72 +756,89 @@
 
    suite("Union", #code {
       test("primitive types", (t) => {
-         u: Union(s64, u8, float64);
+         u: Union(struct {
+             A: s64;
+             B: u8;
+             C: float64;
+         });
 
          set(*u, 35);
-         expect(t, u.type == s64, "type was expected to be s64, instead was %", u.type);
+         expect(t, u.tag == .A, "tag was expected to be A, instead was %", u.tag);
 
          set(*u, cast(float64)3.14);
-         expect(t, u.type == float64, "type was expected to be float64, instead was %", u.type);
+         expect(t, u.tag == .C, "tag was expected to be C, instead was %", u.tag);
 
          set(*u, cast(u8)255);
-         expect(t, u.type == u8, "type was expected to be u8, instead was %", u.type);
+         expect(t, u.tag == .B, "tag was expected to be B, instead was %", u.tag);
       });
 
       test("struct types", (t) => {
          Foo :: struct { a: int; };
          Bar :: struct { b: int; };
 
-         u: Union(Foo, Bar);
+         u: Union(struct {
+             foo: Foo;
+             bar: Bar;
+         });
 
          set(*u, Foo.{ 10 });
-         expect(t, u.type == Foo, "type was expected to be Foo, instead was %", u.type);
-
-         foo, f_ok := get(*u, Foo);
-         expect(t, f_ok && foo.a == 10, "foo had invalid data: %", foo);
+         expect(t, u.tag == .foo, "tag was expected to be Foo, instead was %", u.tag);
+         expect(t, u.foo.a == 10);
 
          set(*u, Bar.{ 20 });
-         expect(t, u.type == Bar, "type was expected to be Bar, instead was %", u.type);
-
-         bar, b_ok := get(*u, Bar);
-         expect(t, b_ok && bar.b == 20, "bar had invalid data: %", bar);
+         expect(t, u.tag == .bar, "tag was expected to be Bar, instead was %", u.tag);
+         expect(t, u.bar.b == 20);
       });
 
       test("union of unions", (t) => {
-         Base :: Union(A, B, C, D);
+         Base :: Union(struct {
+            a: A;
+            b: B;
+            c: C;
+            d: D;
+
+            Tag_Type :: u8;
+         });
+
          A :: struct { a: int; };
          B :: struct { b: int; };
          C :: struct { c: int; };
-         D :: struct { value: Union(*A, *B, *C, *D); }
+         D :: struct {
+             value: Union(struct {
+                a: *A;
+                b: *B;
+                c: *C;
+                d: *D;
+
+                Tag_Type :: u16;
+             });
+         };
 
          base: Base;
 
-         set(*base, A.{ 10 });
-         expect(t, base.type == A, "expected type to be A, instead was %", base.type);
+         {
+             size := size_of(type_of(Base.tag));
+             expect(t, size == 1, "Expected Base.tag to have a runtime size of 1, instead had %", size);
+         }
 
-         a, a_ok := get(*base, A);
-         expect(t, a_ok && a.a == 10, "a had invalid data: %", a);
+         {
+            size := size_of(type_of(D.value.tag));
+            expect(t, size == 2, "Expected D.value.tag to have a runtime size of 2, instead had %", size);
+         }
+
+         set(*base, A.{ 10 });
+         expect(t, base.tag == .a, "expected tag to be A, instead was %", base.tag);
 
          set(*base, B.{ -1 });
-         expect(t, base.type == B, "expected type to be B, instead was %", base.type);
-
-         b, b_ok := get(*base, B);
-         expect(t, b_ok && b.b == -1, "b had invalid data: %", b);
+         expect(t, base.tag == .b, "expected type to be B, instead was %", base.tag);
 
          {
             d: D;
             set(*d.value, *C.{ 255 });
             set(*base, d);
+
+            expect(t, base.tag == .d, "expected type to be D, instead was %", base.tag);
          }
-
-         expect(t, base.type == D, "expected type to be D, instead was %", base.type);
-
-         d, d_ok := get(*base, D);
-         expect(t, d_ok && d.value.type == *C, "expected type to be *C, instead was", d.value.type);
-
-         c, c_ok := get(*d.value, *C);
-         expect(t, c_ok, "unable to get *C from D");
-         expect(t, (<<c).c == 255, "c had invalid data: %", <<(<<c));
       });
    });
 

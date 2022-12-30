@@ -22,7 +22,7 @@ Modules
    - testing.jai (Compile-time testing)
    - ticker.jai (A tick-based event system)
    - utilities.jai (Helpful utilities)
-   - union.jai (Tagged unions)
+   - union.jai (Tagged unions with auto generated tags)
 
 
 Notes
