@@ -1,7 +1,12 @@
 /// Tagged unions with auto generated tags
 
-Union :: struct(T: Type) {
+Union :: struct(T: Type, TAG := s64) {
    #insert -> string {
+      tag_info := type_info(TAG);
+      if tag_info.type != .INTEGER {
+         compiler_report("Union tag must be an integer!", loc = #location(TAG));
+      }
+
       info := type_info(T);
       if info.type != .STRUCT {
          compiler_report("Only structs can be passed to Union!", loc = #location(T));
@@ -9,7 +14,6 @@ Union :: struct(T: Type) {
 
       eb: String_Builder;
       ub: String_Builder;
-      tag_type: Type = void;
 
       init: T;
       zero: T = ---;
@@ -18,18 +22,6 @@ Union :: struct(T: Type) {
       sinfo := cast(*Type_Info_Struct)info;
       for sinfo.members {
          if it.offset_into_constant_storage != -1 {
-            if it.name == "Tag_Type" {
-               addr := sinfo.constant_storage_buffer + it.offset_into_constant_storage;
-               tag_info := <<cast(**Type_Info)addr;
-
-               if tag_info.type != .INTEGER {
-                  compiler_report("Underlying tag type must be an integer!", loc = #location(T));
-               }
-
-               tag_type = get_type(tag_info);
-               continue;
-            }
-
             compiler_report(sprint("Constant declarations are not allowed in unions!"), mode = .WARNING, loc = #location(T)); // @TEMP
             continue;
          }
@@ -54,13 +46,7 @@ Union :: struct(T: Type) {
       }
 
       b: String_Builder;
-      append(*b, "tag: enum ");
-
-      if tag_type != void {
-         print_to_builder(*b, "% ", tag_type);
-      }
-
-      append(*b, "{\n");
+      print_to_builder(*b, "tag: enum % {\n", TAG);
       append(*b, builder_to_string(*eb));
       append(*b, "};\n");
 

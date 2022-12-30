@@ -796,9 +796,7 @@
             b: B;
             c: C;
             d: D;
-
-            Tag_Type :: u8;
-         });
+         }, u8);
 
          A :: struct { a: int; };
          B :: struct { b: int; };
@@ -809,9 +807,7 @@
                 b: *B;
                 c: *C;
                 d: *D;
-
-                Tag_Type :: u16;
-             });
+             }, u16);
          };
 
          base: Base;
