@@ -7,17 +7,15 @@ Union :: struct(T: Type) {
          compiler_report("Only structs can be passed to Union!", loc = #location(T));
       }
 
-      sinfo := cast(*Type_Info_Struct)info;
-
       eb: String_Builder;
       ub: String_Builder;
       tag_type: Type = void;
-      bytes: [1024]u8;
 
       init: T;
       zero: T = ---;
       memset(*zero, 0, size_of(T));
 
+      sinfo := cast(*Type_Info_Struct)info;
       for sinfo.members {
          if it.offset_into_constant_storage != -1 {
             if it.name == "Tag_Type" {
@@ -58,8 +56,9 @@ Union :: struct(T: Type) {
       b: String_Builder;
       append(*b, "tag: enum ");
 
-      if tag_type != void
+      if tag_type != void {
          print_to_builder(*b, "% ", tag_type);
+      }
 
       append(*b, "{\n");
       append(*b, builder_to_string(*eb));
