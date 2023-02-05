@@ -129,23 +129,16 @@ C :: struct {
 // @Note(Judah): Because Jai's print_type_to_builder doesn't actually
 // output the real type (just an approximation/verbose version), we
 // can't rely on it to generate the cast expression (hence the ifs)
-as :: ($T: Type, expr: Code, $check := true, $truncate := false) -> T #expand {
-    // expr_str :: #run -> string {
-    //     root := compiler_get_nodes(expr);
-    //     builder: String_Builder;
-    //     print_expression(*builder, root);
-    //     return sprint("#insert expr /* as(%, %) */;", T, builder_to_string(*builder));
-    // };
-
+as :: ($T: Type, expr: $V, $check := true, $truncate := false) -> T #expand {
     #if !check {
-        #if truncate then return cast,no_check,trunc(T)(#insert expr);
-        else              return cast,no_check(T)(#insert expr);
+        #if truncate then return cast,no_check,trunc(T)(expr);
+        else              return cast,no_check(T)(expr);
     }
     else #if truncate {
-        return cast,trunc(T)(#insert expr);
+        return cast,trunc(T)(expr);
     }
 
-    return cast(T)(#insert expr);
+    return cast(T)(expr);
 }
 
 as_trunc :: ($T: Type, expr: Code) -> T #expand {

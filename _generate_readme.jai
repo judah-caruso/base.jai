@@ -52,10 +52,9 @@ lib_module :: (path: string) -> bool {
 README :: #string END
 Base
 
-   My personal library for Jai. For the most
-   part, each module can be copy-pasted into
-   your project without having to pull in the
-   entire library.
+   My personal library for Jai. For the most part,
+   each module can be copy-pasted into your project
+   without having to pull in the entire library.
 
 
 Modules

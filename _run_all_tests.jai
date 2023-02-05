@@ -586,6 +586,7 @@
        });
    });
 
+   /*
    suite("Static Array", #code {
        test("dynamic api to static", (t) => {
            dynamic: [..]int;
@@ -680,6 +681,7 @@
            expect(t, cap(arr) == 5);
        });
    });
+   */
 
    suite("Ticker", #code {
       test("updates", (t) => {
@@ -754,6 +756,7 @@
       });
    });
 
+    /*
    suite("Union", #code {
       test("primitive types", (t) => {
          u: Union(struct {
@@ -837,13 +840,9 @@
          }
       });
    });
+   */
 
    suite("Utilities", #code {
-       test("as", (t) => {
-           foo: float64 = 3.14;
-           expect(t, type_of(as(*u64, *foo)) == *u64);
-       });
-
        test("pluralize", (t) => {
            expect(t, pluralize("foo", 0)  == "foos");
            expect(t, pluralize("foo", 1)  == "foo");

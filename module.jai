@@ -11,5 +11,6 @@
 #load "static-array.jai";
 #load "testing.jai";
 #load "ticker.jai";
+#load "tween.jai";
 #load "union.jai";
 #load "utilities.jai";

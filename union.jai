@@ -12,6 +12,7 @@ Union :: struct(T: Type, TAG := s64) {
          compiler_report("Only structs can be passed to Union!", loc = #location(T));
       }
 
+
       eb: String_Builder;
       ub: String_Builder;
 

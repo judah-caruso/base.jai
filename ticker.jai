@@ -153,6 +153,6 @@ get_interal :: (event: *Event) -> *Event_Data #expand {
 }
 
 libc_trunc :: (value: float32) -> float32 #foreign libc_math "truncf";
-libc_math  :: #foreign_system_library "libc";
+libc_math  :: #system_library "libc";
 
 #import "Math";

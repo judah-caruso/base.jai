@@ -1,17 +1,16 @@
 Base
 
-   My personal library for Jai. For the most
-   part, each module can be copy-pasted into
-   your project without having to pull in the
-   entire library.
+   My personal library for Jai. For the most part,
+   each module can be copy-pasted into your project
+   without having to pull in the entire library.
 
 
 Modules
 
    - allocators.jai (Custom allocators)
    - array.jai (Utilities for dynamic arrays.)
-   - bitset.jai (Simple Odin-like bitset)
    - base64.jai (Simple base64 encoder/decoder)
+   - bitset.jai (Simple Odin-like bitset)
    - color-print.jai (Colored console output)
    - compile-time.jai (Compile-time utilities)
    - fixed-update.jai (Locked timestep update loop)
@@ -19,8 +18,9 @@ Modules
    - lexer.jai (General purpose lexing)
    - maybe.jai (Rust-like optional type)
    - static-array.jai (Fixed-size array that feels like [..]T)
-   - testing.jai (Compile-time testing)
+   - tween.jai (Immediate mode tweening)
    - ticker.jai (A tick-based event system)
+   - testing.jai (Compile-time testing)
    - utilities.jai (Helpful utilities)
    - union.jai (Tagged unions with auto generated tags)
 

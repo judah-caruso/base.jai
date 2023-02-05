@@ -186,7 +186,7 @@ expect :: (test: *Test, expr: Code, format_string := "", args: ..Any, loc := #ca
     ctx := test.suite.current;
     if ctx.has_already_failed return;
 
-    expr_as_bool := cast(bool)#insert expr;
+    expr_as_bool := cast(bool)(#insert expr);
     if expr_as_bool {
         ctx.status = .Pass;
     }

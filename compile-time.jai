@@ -48,7 +48,7 @@ ct_zero_value_of :: (info: *Type_Info) -> string {
         case .STRING;
             return "\"\";";
         case .STRUCT;
-            return ".{};";
+            return "---;";
         case .ARRAY;
             return ".[];";
 
